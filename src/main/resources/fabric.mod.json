@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "Adds a permanent repair hammer that mends your own or a teammate's armor by spending the user's experience points.",
+  "authors": ["TakumiStudios"],
+  "contact": {
+    "homepage": "https://github.com/AloneX15/hammer-repair-mod",
+    "sources": "https://github.com/AloneX15/hammer-repair-mod",
+    "issues": "https://github.com/AloneX15/hammer-repair-mod/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/hammer_repair/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.takumistudios.hammer_repair.HammerRepair"],
+    "client": ["com.takumistudios.hammer_repair.client.HammerRepairClient"]
+  },
+  "depends": {
+    "fabricloader": ">=${loader}",
+    "minecraft": "${minecraft}",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "mixins": ["hammer_repair.mixins.json"]
+}

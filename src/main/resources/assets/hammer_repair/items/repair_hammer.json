@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "hammer_repair:item/repair_hammer"
+  }
+}
