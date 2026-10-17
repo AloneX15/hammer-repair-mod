@@ -4,7 +4,9 @@
 
 - Partículas de aldeano feliz (`minecraft:happy_villager`) en cada golpe que repara.
 - Golpe de martillo al pulsar el clic derecho, sin esperar a la primera reparación.
-- Nuevo modelo 3D del martillo hecho en Blockbench (fuente en `art/repair_hammer.bbmodel`), con textura de 128x128.
+- Nuevo modelo 3D del martillo hecho en Blockbench (fuente en `art/repair_hammer.bbmodel`), con textura de 128x128:
+  cabeza de netherita con bandas de oro, caras de golpe pulidas, núcleo de oro con gema cian, mango de madera con
+  contera de hierro y tiras de cuero (`tools/paint-hammer-texture.js`).
 
 ## 1.0.0
 

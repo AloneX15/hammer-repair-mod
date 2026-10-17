@@ -144,6 +144,7 @@ administrador puede añadir otra receta con un datapack.
 ./gradlew :26.3:runClientGameTest            # test de cliente con capturas (incluye servidor dedicado)
 ./gradlew :26.3:runClient                    # abre el juego
 node tools/generate-textures.js              # regenera el icono del mod (el modelo 3D del martillo viene de Blockbench)
+node tools/paint-hammer-texture.js           # repinta la textura del modelo 3D y la incrusta en art/repair_hammer.bbmodel
 ```
 
 Errores corregidos y su prueba de regresión: [docs/registro-de-errores.md](docs/registro-de-errores.md). Mixins y su

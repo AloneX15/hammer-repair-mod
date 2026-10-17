@@ -1,5 +1,5 @@
 // Genera el icono del mod (128x128) sin dependencias. La textura y el modelo 3D del martillo
-// se exportan desde Blockbench (models/item/repair_hammer.json y textures/item/repair_hammer.png).
+// se exportan desde Blockbench (art/repair_hammer.bbmodel); la textura se pinta con tools/paint-hammer-texture.js.
 // Uso: node tools/generate-textures.js [--ascii]
 const zlib = require("zlib");
 const fs = require("fs");
