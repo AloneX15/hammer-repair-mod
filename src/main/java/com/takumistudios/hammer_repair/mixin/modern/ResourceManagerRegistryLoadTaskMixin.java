@@ -1,5 +1,7 @@
 package com.takumistudios.hammer_repair.mixin.modern;
 
+import com.takumistudios.hammer_repair.recipe.modern.RegistryLoadingContext;
+
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceManagerRegistryLoadTask;
 import org.spongepowered.asm.mixin.Mixin;

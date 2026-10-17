@@ -7,7 +7,6 @@ import com.takumistudios.hammer_repair.config.HammerConfig;
 import com.takumistudios.hammer_repair.config.RecipeConfig;
 import com.takumistudios.hammer_repair.recipe.HammerRecipes;
 import com.takumistudios.hammer_repair.registry.ModItems;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,6 +26,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+
+//? if >=26.1 {
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
+//?} else {
+/*import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
+*///?}
 
 /**
  * Receta configurable de punta a punta: recarga real de los datos del servidor con distintas configuraciones. Va en su
@@ -172,14 +178,14 @@ public class HammerRecipeGameTests {
 
         helper.succeedWhen(() -> {
             if (!done.get()) {
-                throw helper.assertionException("esperando a las recargas");
+                throw TestSupport.fail(helper, "esperando a las recargas");
             }
             HammerConfig.setForTesting(CommonConfig.DEFAULTS, state(RecipeConfig.DEFAULT_JSON));
             TestPlayers.remove(helper, online);
             Throwable error = failure.get();
             if (error != null) {
                 Throwable cause = error.getCause() != null ? error.getCause() : error;
-                throw helper.assertionException(String.valueOf(cause.getMessage()));
+                throw TestSupport.fail(helper, String.valueOf(cause.getMessage()));
             }
         });
     }
@@ -198,7 +204,7 @@ public class HammerRecipeGameTests {
 
     private static void assertThat(GameTestHelper helper, boolean condition, String message) {
         if (!condition) {
-            throw helper.assertionException(message);
+            throw TestSupport.fail(helper, message);
         }
     }
 }

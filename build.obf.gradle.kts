@@ -124,3 +124,26 @@ tasks {
         exclude("fabric.mod.json")
     }
 }
+
+// El código se escribe con los nombres de 26.x; al compilar 1.21.1 Stonecutter aplica estos reemplazos (y los deshace
+// al volver). Solo renombres mecánicos: las diferencias de comportamiento van en ramas //? if (compat/Versions.java).
+// Deben ser iguales en build.gradle.kts y build.obf.gradle.kts: Stonecutter 0.9 no aplica los reemplazos declarados
+// en `parameters` del controlador.
+stonecutter {
+    val modern = current.parsed >= "26.1"
+    replacements {
+        // Mojang renombró ResourceLocation a Identifier en 1.21.11. Solo la palabra completa: los lookarounds evitan
+        // tocar nombres como isIdentifier
+        regex(modern) {
+            replace(
+                """(?<![A-Za-z0-9_])ResourceLocation(?![A-Za-z0-9_])""", "Identifier",
+                """(?<![A-Za-z0-9_])Identifier(?![A-Za-z0-9_])""", "ResourceLocation",
+            )
+        }
+        // Gametests: @GameTest de Fabric en 26.x; el de vanilla con estructura vacía en 1.21.1. Los imports y los
+        // fallos van en ramas (ver TestSupport)
+        string(modern) {
+            replace("@GameTest(template = FabricGameTest.EMPTY_STRUCTURE, timeoutTicks = ", "@GameTest(maxTicks = ")
+        }
+    }
+}

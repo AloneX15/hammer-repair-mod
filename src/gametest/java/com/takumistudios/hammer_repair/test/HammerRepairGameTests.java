@@ -3,7 +3,6 @@ package com.takumistudios.hammer_repair.test;
 import com.takumistudios.hammer_repair.HammerRepair;
 import com.takumistudios.hammer_repair.registry.ModItems;
 import com.takumistudios.hammer_repair.repair.RepairSessions;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -22,6 +21,13 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos;
 
+//? if >=26.1 {
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
+//?} else {
+/*import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
+*///?}
+
 /**
  * Gametests de servidor de la reparación: ./gradlew :26.3:runGameTest o :1.21.1:runGameTest (y con -PcompatPack en la CI).
  * Configuración predeterminada: 2 de durabilidad por punto, 20 por golpe, un golpe cada 20 ticks y 3 bloques.
@@ -34,7 +40,7 @@ public class HammerRepairGameTests {
 
     private static void check(GameTestHelper helper, boolean condition, String message) {
         if (!condition) {
-            throw helper.assertionException(message);
+            throw TestSupport.fail(helper, message);
         }
     }
 

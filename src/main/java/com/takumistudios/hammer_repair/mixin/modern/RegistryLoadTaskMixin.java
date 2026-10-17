@@ -1,5 +1,7 @@
 package com.takumistudios.hammer_repair.mixin.modern;
 
+import com.takumistudios.hammer_repair.recipe.modern.RegistryLoadingContext;
+
 import com.takumistudios.hammer_repair.HammerRepair;
 import com.takumistudios.hammer_repair.recipe.HammerRecipes;
 import net.minecraft.core.HolderGetter;

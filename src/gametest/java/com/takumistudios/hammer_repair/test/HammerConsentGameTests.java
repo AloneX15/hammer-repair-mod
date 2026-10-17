@@ -2,7 +2,6 @@ package com.takumistudios.hammer_repair.test;
 
 import com.takumistudios.hammer_repair.config.CommonConfig;
 import com.takumistudios.hammer_repair.config.HammerConfig;
-import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -10,6 +9,13 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
+
+//? if >=26.1 {
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
+//?} else {
+/*import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
+import net.minecraft.gametest.framework.GameTest;
+*///?}
 
 /**
  * Consentimiento ({@code require_target_sneaking}). Cambia la configuración global, así que va en su propio entorno
@@ -38,7 +44,7 @@ public class HammerConsentGameTests {
         helper.runAfterDelay(40, () -> {
             if (chest.getDamageValue() != 100 || TestPlayers.xp(repairer) != xp) {
                 restore(original);
-                throw helper.assertionException("sin agacharse no debe repararse ni cobrarse nada");
+                throw TestSupport.fail(helper, "sin agacharse no debe repararse ni cobrarse nada");
             }
             target.setShiftKeyDown(true);
         });
@@ -47,7 +53,7 @@ public class HammerConsentGameTests {
             boolean ok = chest.getDamageValue() == 80 && TestPlayers.xp(repairer) == xp - 10;
             TestPlayers.remove(helper, repairer, target);
             if (!ok) {
-                throw helper.assertionException("agachado debe aceptar la reparación: daño " + chest.getDamageValue());
+                throw TestSupport.fail(helper, "agachado debe aceptar la reparación: daño " + chest.getDamageValue());
             }
             helper.succeed();
         });
