@@ -2,6 +2,38 @@
 
 Cada error resuelto con su síntoma, causa, solución y la prueba que evita que vuelva.
 
+## 1.0.2
+
+### La reparación cooperativa ignoraba la desactivación de seguridad
+
+- **Síntoma:** tras tres errores seguidos en el tick, la reparación propia dejaba de empezar, pero la cooperativa
+  creaba una sesión que nunca avanzaba: el jugador mantenía el clic sobre su compañero sin reparar ni recibir aviso.
+- **Causa:** solo `RepairHammerItem.startSelf` comprobaba `HammerRepair.repairsEnabled()`.
+- **Solución:** la comprobación está en `RepairSessions.canStart`, común a los dos modos, con el aviso
+  `hammer_repair.message.disabled`.
+- **Test:** `HammerSafetyGameTests.tickErrorsStopTheHammerInBothModes`.
+
+### Un error en el tick dejaba a los jugadores usando el martillo
+
+- **Síntoma:** tras un error en el tick se borraban las sesiones, pero los jugadores seguían "usando" el martillo hasta
+  soltar el botón.
+- **Causa:** el manejo del error llamaba a `RepairSessions.cancelAll(null)`, que sin servidor no llama a
+  `stopUsingItem()`.
+- **Solución:** `HammerRepair.tickFailed` pasa el servidor; `cancelAll` captura los errores de cada jugador y vacía
+  las sesiones pase lo que pase, porque ahora se ejecuta dentro del manejo de errores.
+- **Test:** `HammerSafetyGameTests.tickErrorsStopTheHammerInBothModes`.
+
+### Cualquier Fabric API se daba por buena
+
+- **Síntoma (diseño):** `"fabric-api": "*"` dejaba arrancar el mod con una Fabric API sin las APIs que usa (por
+  ejemplo `CreativeModeTabEvents` o `PayloadTypeRegistry.clientboundConfiguration`, que no existen en 0.140.0+26.1).
+- **Solución:** `mod.min_fabric_api` por versión. Es la primera Fabric API publicada en Modrinth para la versión de
+  Minecraft más antigua de cada nodo. Las versiones anteriores de Maven con el mismo sufijo (`0.153.1+26.3`,
+  `0.145.4+26.2`…) son de snapshots o pre-releases y ni siquiera arrancan en la versión final.
+- **Prueba:** el código del jar compila contra versiones más antiguas que el mínimo, y los gametests de servidor pasan con
+  el mínimo de cada nodo (en 1.21.1, con 0.102.0+1.21.1, la primera para 1.21.1). El test de cliente usa APIs más
+  nuevas y no se ejecutó con el mínimo.
+
 ## 1.0.0 (desarrollo)
 
 ### Desbordamiento de experiencia con niveles enormes

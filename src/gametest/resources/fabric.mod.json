@@ -11,6 +11,7 @@
     "fabric-gametest": [
       "com.takumistudios.hammer_repair.test.HammerRepairGameTests",
       "com.takumistudios.hammer_repair.test.HammerConsentGameTests",
+      "com.takumistudios.hammer_repair.test.HammerSafetyGameTests",
       "com.takumistudios.hammer_repair.test.HammerRecipeGameTests"
     ],
     "fabric-client-gametest": [

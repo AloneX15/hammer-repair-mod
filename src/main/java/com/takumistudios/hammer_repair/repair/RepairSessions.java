@@ -1,5 +1,6 @@
 package com.takumistudios.hammer_repair.repair;
 
+import com.takumistudios.hammer_repair.HammerRepair;
 import com.takumistudios.hammer_repair.compat.Versions;
 import com.takumistudios.hammer_repair.config.CommonConfig;
 import com.takumistudios.hammer_repair.config.HammerConfig;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+
+import static com.takumistudios.hammer_repair.HammerRepair.LOGGER;
 
 /**
  * Sesiones de reparación activas: una por reparador. Solo se recorren estas sesiones en cada tick, nunca todos los
@@ -103,6 +106,10 @@ public final class RepairSessions {
 
     private static boolean canStart(ServerPlayer repairer) {
         if (repairer.isSpectator() || !repairer.isAlive()) {
+            return false;
+        }
+        if (!HammerRepair.repairsEnabled()) {
+            notify(repairer, "hammer_repair.message.disabled");
             return false;
         }
         if (!RepairService.canPayAnything(repairer)) {
@@ -245,18 +252,28 @@ public final class RepairSessions {
         LAST_MESSAGES.remove(player);
     }
 
-    /** Cancela todas las reparaciones en curso (recarga de configuración, cierre del servidor). */
+    /**
+     * Cancela todas las reparaciones en curso (recarga de configuración, cierre del servidor, error en el tick). Nunca
+     * lanza excepciones: se llama también desde el manejo de errores del tick.
+     */
     public static void cancelAll(MinecraftServer server) {
-        if (server != null) {
-            for (UUID id : SESSIONS.keySet().toArray(UUID[]::new)) {
-                ServerPlayer player = server.getPlayerList().getPlayer(id);
-                if (player != null) {
-                    end(player);
+        try {
+            if (server != null) {
+                for (UUID id : SESSIONS.keySet().toArray(UUID[]::new)) {
+                    try {
+                        ServerPlayer player = server.getPlayerList().getPlayer(id);
+                        if (player != null) {
+                            end(player);
+                        }
+                    } catch (RuntimeException e) {
+                        LOGGER.error("No se pudo cancelar la reparación de {}", id, e);
+                    }
                 }
             }
+        } finally {
+            SESSIONS.clear();
+            LAST_MESSAGES.clear();
         }
-        SESSIONS.clear();
-        LAST_MESSAGES.clear();
     }
 
     /** Aviso en la barra de acción, limitado para no repetirse constantemente. */

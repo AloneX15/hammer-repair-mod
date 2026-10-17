@@ -11,6 +11,7 @@
   "hammer_repair.message.needs_consent": "%s must crouch to accept the repair",
   "hammer_repair.message.finished": "Repair complete",
   "hammer_repair.message.finished_target": "Repair of %s's armor complete",
+  "hammer_repair.message.disabled": "The repair hammer is disabled after repeated errors until the server restarts (see the server log)",
 
   "hammer_repair.disconnect.missing": "This server requires Hammer Repair %s (network protocol %s) on the client.",
   "hammer_repair.disconnect.protocol": "Hammer Repair version mismatch: the server uses network protocol %s and your client uses %s (Hammer Repair %s). Install the same version as the server.",

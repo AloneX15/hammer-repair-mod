@@ -11,6 +11,7 @@
   "hammer_repair.message.needs_consent": "%s debe agacharse para aceptar la reparación",
   "hammer_repair.message.finished": "Reparación completada",
   "hammer_repair.message.finished_target": "Reparación de la armadura de %s completada",
+  "hammer_repair.message.disabled": "El martillo de reparación está desactivado por errores repetidos hasta reiniciar el servidor (ver el log del servidor)",
 
   "hammer_repair.disconnect.missing": "Este servidor requiere Hammer Repair %s (protocolo de red %s) en el cliente.",
   "hammer_repair.disconnect.protocol": "Versión de Hammer Repair incompatible: el servidor usa el protocolo de red %s y tu cliente el %s (Hammer Repair %s). Instala la misma versión que el servidor.",

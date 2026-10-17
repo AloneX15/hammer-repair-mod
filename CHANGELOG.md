@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.2
+
+- Si el martillo se desactiva por errores repetidos en el servidor, la reparación cooperativa tampoco empieza y se
+  avisa en la barra de acción. Antes se podía mantener el clic sobre un compañero sin que pasara nada.
+- Un error en las reparaciones deja de usar el martillo en el acto, en lugar de dejar al jugador pulsando sin efecto
+  hasta soltar el botón.
+- El jar exige una Fabric API mínima por versión de Minecraft (antes aceptaba cualquiera): 0.100.1 en 1.21.x, 0.144.0
+  en 26.1.x, 0.152.1 en 26.2 y 0.160.5 en 26.3, la primera publicada para cada versión. Con una Fabric API anterior el
+  launcher avisa al arrancar, en vez de fallar durante la partida.
+
 ## 1.0.1
 
 - El jar ya no exige la última versión de Fabric Loader, sino la mínima que pide Fabric API en cada versión de

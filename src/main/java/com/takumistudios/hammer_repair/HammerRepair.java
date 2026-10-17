@@ -15,6 +15,7 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,12 +64,7 @@ public final class HammerRepair implements ModInitializer {
                 RepairSessions.tick(server);
                 tickErrors = 0;
             } catch (RuntimeException e) {
-                LOGGER.error("Error en el tick de reparaciones; se cancelan las reparaciones en curso", e);
-                RepairSessions.cancelAll(null);
-                if (++tickErrors >= MAX_TICK_ERRORS) {
-                    repairsEnabled = false;
-                    LOGGER.error("Demasiados errores seguidos: las reparaciones con el martillo quedan desactivadas hasta reiniciar");
-                }
+                tickFailed(server, e);
             }
         });
 
@@ -126,9 +122,28 @@ public final class HammerRepair implements ModInitializer {
         LOGGER.info("Hammer Repair {} cargado. Creado por TakumiStudios.", version());
     }
 
+    /**
+     * Error en el tick de reparaciones: cancela las reparaciones en curso (dejando de usar el martillo, para que nadie
+     * se quede pulsando sin efecto) y, tras {@link #MAX_TICK_ERRORS} seguidos, desactiva el martillo hasta reiniciar.
+     */
+    public static void tickFailed(MinecraftServer server, RuntimeException error) {
+        LOGGER.error("Error en el tick de reparaciones; se cancelan las reparaciones en curso", error);
+        RepairSessions.cancelAll(server);
+        if (++tickErrors >= MAX_TICK_ERRORS) {
+            repairsEnabled = false;
+            LOGGER.error("Demasiados errores seguidos: las reparaciones con el martillo quedan desactivadas hasta reiniciar");
+        }
+    }
+
     /** Falso si el tick de reparaciones falló demasiadas veces seguidas (hasta reiniciar). */
     public static boolean repairsEnabled() {
         return repairsEnabled;
+    }
+
+    /** Vuelve a activar el martillo tras {@link #tickFailed}. Solo para los gametests: en juego se reinicia el servidor. */
+    public static void resetRepairsForTests() {
+        tickErrors = 0;
+        repairsEnabled = true;
     }
 
     public static Identifier id(String path) {

@@ -93,12 +93,12 @@ Build de desarrollo (último `main`, ya probado): [release `dev`](https://github
 
 ## Compatibilidad
 
-| Minecraft | Estado |
-|---|---|
-| 1.21 y 1.21.1 | ✅ (soporte extendido, Java 21) |
-| 26.1.x | ✅ |
-| 26.2.x | ✅ |
-| 26.3.x | ✅ |
+| Minecraft | Estado | Fabric API mínima |
+|---|---|---|
+| 1.21 y 1.21.1 | ✅ (soporte extendido, Java 21) | 0.100.1 |
+| 26.1.x | ✅ | 0.144.0 |
+| 26.2.x | ✅ | 0.152.1 |
+| 26.3.x | ✅ | 0.160.5 |
 
 Probado en la CI junto a Lithium y FerriteCore. Las armaduras de otros mods funcionan si el juego las reconoce para
 casco, pechera, pantalones o botas y usan la durabilidad estándar. Las ranuras adicionales (accesorios) y los sistemas

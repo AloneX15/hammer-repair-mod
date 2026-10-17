@@ -96,6 +96,7 @@ tasks {
             "version" to version.toString(),
             "minecraft" to sc.properties.get<String>("mod.mc_compat"),
             "loader" to sc.properties.get<String>("mod.min_loader"),
+            "fabric_api" to sc.properties.get<String>("mod.min_fabric_api"),
             "java" to javaVersion,
         )
         inputs.properties(props)
