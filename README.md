@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/AloneX15/hammer-repair-mod/actions/workflows/build.yml/badge.svg)](https://github.com/AloneX15/hammer-repair-mod/actions/workflows/build.yml)
 [![Release](https://img.shields.io/github/v/release/AloneX15/hammer-repair-mod?sort=semver)](https://github.com/AloneX15/hammer-repair-mod/releases)
-![Minecraft](https://img.shields.io/badge/Minecraft-26.x-62b47a)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.21.1%20%C2%B7%2026.x-62b47a)
 ![Loader](https://img.shields.io/badge/loader-Fabric-dbd0b4)
 
 Adds a permanent repair hammer that mends your own or a teammate's armor by spending the user's experience points.
@@ -56,6 +56,7 @@ Build de desarrollo (último `main`, ya probado): [release `dev`](https://github
 
 | Minecraft | Estado |
 |---|---|
+| 1.21 y 1.21.1 | ✅ (soporte extendido, Java 21) |
 | 26.1.x | ✅ |
 | 26.2.x | ✅ |
 | 26.3.x | ✅ |
@@ -143,9 +144,15 @@ administrador puede añadir otra receta con un datapack.
 ./gradlew :26.3:runGameTest -PcompatPack     # con Lithium y FerriteCore
 ./gradlew :26.3:runClientGameTest            # test de cliente con capturas (incluye servidor dedicado)
 ./gradlew :26.3:runClient                    # abre el juego
+./gradlew :1.21.1:build :1.21.1:runGameTest  # lo mismo en 1.21.1 (sin test de cliente: esa API no existe allí)
 node tools/generate-textures.js              # regenera el icono del mod (el modelo 3D del martillo viene de Blockbench)
 node tools/paint-hammer-texture.js           # repinta la textura del modelo 3D y la incrusta en art/repair_hammer.bbmodel
 ```
+
+Todas las versiones salen del mismo código con Stonecutter. 1.21.1 usa `build.obf.gradle.kts` (Loom con remapeo y
+mappings de Mojang); el código se escribe con los nombres de 26.x y los renombres (`Identifier` ↔ `ResourceLocation`,
+anotación de los gametests) los traduce Stonecutter. Las diferencias de API están en `compat/Versions.java`, y las
+clases de una sola época en paquetes `modern` (26.x) o `legacy` (1.21.1).
 
 Errores corregidos y su prueba de regresión: [docs/registro-de-errores.md](docs/registro-de-errores.md). Mixins y su
 motivo: [MIXINS.md](MIXINS.md).
