@@ -1,14 +1,5 @@
 # Changelog
 
-## Sin publicar
-
-- Soporte para Minecraft 1.21 y 1.21.1 (Java 21) desde el mismo código que las 26.x. En 1.21.1 las etiquetas de
-  `recipe.json` que no existan se avisan en el log al terminar de cargar, en vez de rechazar la receta al leerla.
-- Partículas de aldeano feliz (`minecraft:happy_villager`) en cada golpe que repara.
-- Golpe de martillo al pulsar el clic derecho, sin esperar a la primera reparación.
-- Nuevo modelo 3D del martillo hecho en Blockbench (fuente en `art/repair_hammer.bbmodel`), con textura de 128x128
-  retocada al estilo de Minecraft sin cambiar su paleta (`tools/paint-hammer-texture.js`).
-
 ## 1.0.0
 
 - Martillo de reparación (`hammer_repair:repair_hammer`): permanente, no apilable, sin encantamientos.
@@ -24,4 +15,10 @@
 - Prioridad de recetas: datapack > config > valores predeterminados.
 - Handshake de red versionado con mensaje claro ante clientes incompatibles.
 - Traducciones en español e inglés.
-- Soporte para Minecraft 26.1.x, 26.2.x y 26.3.x.
+- Soporte para Minecraft 1.21, 1.21.1, 26.1.x, 26.2.x y 26.3.x.
+- En 1.21.1 (Java 21, mismo código que las 26.x) las etiquetas de `recipe.json` que no existan se avisan en el log al
+  terminar de cargar, en vez de rechazar la receta al leerla.
+- Partículas de aldeano feliz (`minecraft:happy_villager`) en cada golpe que repara.
+- Golpe de martillo al pulsar el clic derecho, sin esperar a la primera reparación.
+- Nuevo modelo 3D del martillo hecho en Blockbench (fuente en `art/repair_hammer.bbmodel`), con textura de 128x128
+  retocada al estilo de Minecraft sin cambiar su paleta (`tools/paint-hammer-texture.js`).
