@@ -107,12 +107,13 @@ public final class RepairService {
         return target.position().add(0, height, 0);
     }
 
-    /** Golpe visible para todos (brazo), sonido suave inspirado en el yunque y unas pocas chispas. */
+    /** Golpe visible para todos (brazo), sonido suave inspirado en el yunque, chispas y partículas de aldeano feliz. */
     private static void playEffects(ServerPlayer repairer, InteractionHand hand, Vec3 at) {
         Versions.swingHammer(repairer, hand);
         ServerLevel level = (ServerLevel) repairer.level();
         float pitch = 1.35F + repairer.getRandom().nextFloat() * 0.2F;
         level.playSound(null, at.x, at.y, at.z, SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.25F, pitch);
         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, at.x, at.y, at.z, 4, 0.12, 0.12, 0.12, 0.05);
+        level.sendParticles(ParticleTypes.HAPPY_VILLAGER, at.x, at.y, at.z, 5, 0.25, 0.2, 0.25, 0.0);
     }
 }

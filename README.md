@@ -27,8 +27,9 @@ cooperativo para mantener equipado a un compañero y en solitario para reparar t
   **nunca se cobra un golpe incompleto**. Solo se cambia el daño de la pieza: encantamientos, nombre y demás componentes
   se conservan.
 - En creativo se repara sin gastar experiencia; en espectador no se puede reparar.
-- Golpe de brazo visible para todos, sonido suave de yunque y unas pocas chispas. Avisos en la barra de acción (sin
-  experiencia, sin armadura dañada, consentimiento, reparación completada) limitados para no repetirse.
+- Golpe de brazo visible para todos al pulsar el clic derecho y en cada reparación, sonido suave de yunque, chispas y
+  partículas de aldeano feliz. Avisos en la barra de acción (sin experiencia, sin armadura dañada, consentimiento,
+  reparación completada) limitados para no repetirse.
 - **Receta configurable** en `config/hammer_repair/recipe.json`: con forma o sin forma, objetos de Minecraft o de otros
   mods, etiquetas y alternativas. Se recarga con `/hammerrepair reload`.
 - Traducciones en español e inglés.
@@ -142,7 +143,7 @@ administrador puede añadir otra receta con un datapack.
 ./gradlew :26.3:runGameTest -PcompatPack     # con Lithium y FerriteCore
 ./gradlew :26.3:runClientGameTest            # test de cliente con capturas (incluye servidor dedicado)
 ./gradlew :26.3:runClient                    # abre el juego
-node tools/generate-textures.js              # regenera la textura del martillo y el icono
+node tools/generate-textures.js              # regenera el icono del mod (el modelo 3D del martillo viene de Blockbench)
 ```
 
 Errores corregidos y su prueba de regresión: [docs/registro-de-errores.md](docs/registro-de-errores.md). Mixins y su

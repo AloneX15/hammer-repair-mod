@@ -79,6 +79,8 @@ public final class RepairSessions {
         Session session = new Session(Mode.TARGET, target.getUUID(), InteractionHand.MAIN_HAND);
         session.snapshot = snapshot(repairer, target, session.mode);
         SESSIONS.put(repairer.getUUID(), session);
+        // Golpe al pulsar el clic derecho, sin esperar a que se complete la primera reparación
+        Versions.swingHammer(repairer, session.hammerHand);
         return true;
     }
 
@@ -94,6 +96,7 @@ public final class RepairSessions {
         Session session = new Session(Mode.SELF, repairer.getUUID(), InteractionHand.OFF_HAND);
         session.snapshot = snapshot(repairer, repairer, session.mode);
         SESSIONS.put(repairer.getUUID(), session);
+        Versions.swingHammer(repairer, session.hammerHand);
         return true;
     }
 

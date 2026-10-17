@@ -78,6 +78,33 @@ public class HammerRepairGameTests {
         });
     }
 
+    private static boolean swinging(ServerPlayer player, InteractionHand hand) {
+        //? if >=26.3 {
+        return player.isSwinging() && player.getCurrentSwing() != null && player.getCurrentSwing().hand() == hand;
+        //?} else {
+        /*return player.swinging && player.swingingArm == hand;
+        *///?}
+    }
+
+    @GameTest(maxTicks = 120)
+    public void startingARepairSwingsTheHammerImmediately(GameTestHelper helper) {
+        ServerPlayer[] pair = pair(helper, GameType.SURVIVAL);
+        TestPlayers.giveLevels(pair[0], 30);
+        TestPlayers.wear(pair[1], EquipmentSlot.CHEST, TestPlayers.damaged(Items.IRON_CHESTPLATE, 50));
+        TestPlayers.use(pair[0], InteractionHand.MAIN_HAND);
+        check(helper, swinging(pair[0], InteractionHand.MAIN_HAND), "debe golpear con el martillo al pulsar");
+
+        ServerPlayer self = TestPlayers.spawn(helper, GameType.SURVIVAL, 3.5, 2, 1.5, 0.0F);
+        TestPlayers.giveLevels(self, 30);
+        self.setItemInHand(InteractionHand.MAIN_HAND, TestPlayers.damaged(Items.IRON_HELMET, 50));
+        self.setItemInHand(InteractionHand.OFF_HAND, TestPlayers.hammer());
+        TestPlayers.use(self, InteractionHand.MAIN_HAND);
+        check(helper, swinging(self, InteractionHand.OFF_HAND), "debe golpear con el martillo de la segunda mano");
+
+        TestPlayers.remove(helper, pair[0], pair[1], self);
+        helper.succeed();
+    }
+
     @GameTest(maxTicks = 120)
     public void undamagedPieceIsEquippedNormally(GameTestHelper helper) {
         ServerPlayer player = TestPlayers.spawn(helper, GameType.SURVIVAL, 1.5, 2, 1.5, 0.0F);
