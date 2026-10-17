@@ -1,0 +1,59 @@
+name: Archive version
+
+# Manual: archiva en Modrinth todas las versiones de un tag (una por versión de Minecraft) y añade un aviso al principio
+# de su changelog. CurseForge no tiene API para cambiar el estado de un archivo: allí se hace a mano.
+#   gh workflow run archive-version.yml -f tag=v1.0.0 -f reason="No arranca con Fabric Loader anterior a 0.19.5"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag de la versión a archivar (vX.Y.Z)
+        required: true
+      reason:
+        description: Motivo, se muestra al principio del changelog
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    name: Archive ${{ inputs.tag }}
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag }}
+      REASON: ${{ inputs.reason }}
+    steps:
+      - name: Archive on Modrinth
+        if: ${{ vars.MODRINTH_ID != '' }}
+        env:
+          MODRINTH_ID: ${{ vars.MODRINTH_ID }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          api=https://api.modrinth.com/v2
+          ua="${GITHUB_REPOSITORY} (archive-version workflow)"
+          curl -fsS -A "$ua" -H "Authorization: $MODRINTH_TOKEN" "$api/project/$MODRINTH_ID/version" > versions.json
+          # Las versiones de un tag se publican como "<tag>+mc<versión>"
+          jq -c --arg p "$TAG+" '.[] | select(.version_number | startswith($p))' versions.json > matches.jsonl
+          if [ ! -s matches.jsonl ]; then
+            echo "::error::No hay versiones $TAG+* en Modrinth"
+            exit 1
+          fi
+          while read -r v; do
+            id="$(jq -r .id <<< "$v")"
+            body="$(jq -c --arg r "$REASON" '{status: "archived",
+              changelog: ("**Versión retirada:** " + $r + "\n\n" + (.changelog // ""))}' <<< "$v")"
+            curl -fsS -A "$ua" -X PATCH -H "Authorization: $MODRINTH_TOKEN" -H "Content-Type: application/json" \
+              -d "$body" "$api/version/$id"
+            echo "Archivada $(jq -r .version_number <<< "$v") ($id)"
+          done < matches.jsonl
+
+      - name: Mark the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release view "$TAG" --json body --jq .body > old.md
+          { echo "> [!WARNING]"; echo "> **Versión retirada:** $REASON"; echo; cat old.md; } > new.md
+          gh release edit "$TAG" --notes-file new.md --title "$(gh release view "$TAG" --json name --jq .name) (retirada)"
