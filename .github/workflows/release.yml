@@ -59,15 +59,23 @@ jobs:
       matrix:
         # una entrada por versión; game-versions = versiones de MC en Modrinth/CurseForge
         include:
+          - minecraft: "1.21.1"
+            java: 21
+            game-versions: |
+              1.21
+              1.21.1
           - minecraft: "26.1.2"
+            java: 25
             game-versions: |
               26.1
               26.1.1
               26.1.2
           - minecraft: "26.2"
+            java: 25
             game-versions: |
               26.2
           - minecraft: "26.3"
+            java: 25
             game-versions: |
               26.3
     steps:
@@ -76,7 +84,10 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 25
+          # 21 para compilar 1.21.1 (toolchain) y 25 para Gradle y 26.x; el último queda por defecto
+          java-version: |
+            21
+            25
 
       - uses: gradle/actions/setup-gradle@v6
 
@@ -135,7 +146,7 @@ jobs:
           changelog-file: notes.md
           loaders: fabric
           game-versions: ${{ matrix.game-versions }}
-          java: 25
+          java: ${{ matrix.java }}
           dependencies: |
             fabric-api(required)
 
@@ -160,7 +171,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           {
-            echo "Un jar por versión de Minecraft (26.1.2, 26.2 y 26.3). Requiere Fabric Loader y Fabric API."
+            echo "Un jar por versión de Minecraft (1.21.1, 26.1.2, 26.2 y 26.3). Requiere Fabric Loader y Fabric API."
             echo
             cat notes.md
           } > body.md

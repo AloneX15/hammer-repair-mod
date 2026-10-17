@@ -1,8 +1,7 @@
-package com.takumistudios.hammer_repair.mixin;
+package com.takumistudios.hammer_repair.mixin.modern;
 
 import com.takumistudios.hammer_repair.HammerRepair;
 import com.takumistudios.hammer_repair.recipe.HammerRecipes;
-import com.takumistudios.hammer_repair.recipe.RegistryLoadingContext;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.WritableRegistry;

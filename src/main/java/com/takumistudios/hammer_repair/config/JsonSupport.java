@@ -1,12 +1,15 @@
 package com.takumistudios.hammer_repair.config;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.Strictness;
+import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+//? if >=26.1 {
+import com.google.gson.Strictness;
+//?}
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,6 +23,12 @@ public final class JsonSupport {
     public static final int MAX_FILE_BYTES = 64 * 1024;
 
     /** Mismas reglas que {@code Identifier} de Minecraft: namespace y ruta en minúsculas. */
+    /**
+     * Lector de árboles JSON que respeta el modo del {@link JsonReader}: {@code JsonParser.parseReader} activa siempre
+     * el modo permisivo en Gson 2.10 (Minecraft 1.21.1) y aceptaría comentarios y comas sobrantes.
+     */
+    private static final TypeAdapter<JsonElement> TREE = new Gson().getAdapter(JsonElement.class);
+
     private static final Pattern IDENTIFIER = Pattern.compile("[a-z0-9_.-]+:[a-z0-9_./-]+");
 
     private JsonSupport() {
@@ -33,8 +42,12 @@ public final class JsonSupport {
             return null;
         }
         try (JsonReader reader = new JsonReader(new StringReader(text))) {
+            //? if >=26.1 {
             reader.setStrictness(Strictness.STRICT);
-            JsonElement element = JsonParser.parseReader(reader);
+            //?} else {
+            /*reader.setLenient(false);
+            *///?}
+            JsonElement element = TREE.read(reader);
             if (reader.peek() != JsonToken.END_DOCUMENT) {
                 out.add(Diagnostic.error(Diagnostic.Category.SYNTAX, Diagnostic.Location.FILE, "syntax", "contenido sobrante tras el JSON"));
                 return null;

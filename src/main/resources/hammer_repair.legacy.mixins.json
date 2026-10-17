@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.takumistudios.hammer_repair.mixin.legacy",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "RecipeManagerApplyMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

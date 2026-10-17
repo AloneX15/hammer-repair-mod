@@ -6,6 +6,7 @@ val modId = sc.properties.get<String>("mod.id")
 val modName = sc.properties.get<String>("mod.name")
 val modVersion = sc.properties.get<String>("mod.version")
 val mcVersion = sc.current.version
+val javaVersion = sc.properties.get<String>("deps.java").toInt()
 
 // Nombre del jar: <modid>-<versión del mod>+mc<versión>.jar
 version = "$modVersion+mc$mcVersion"
@@ -35,6 +36,12 @@ loom {
         runDirectory = rootProject.file("run")
         generateRunConfig = true
     }
+}
+
+// Código y mixins solo de 1.21.1 (paquetes "legacy", *.legacy.mixins.json): fuera de las builds de 26.x
+sourceSets.configureEach {
+    java.exclude("**/legacy/**")
+    resources.exclude("*.legacy.mixins.json")
 }
 
 fabricApi {
@@ -68,14 +75,14 @@ dependencies {
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
-    toolchain { languageVersion = JavaLanguageVersion.of(25) }
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
+    toolchain { languageVersion = JavaLanguageVersion.of(javaVersion) }
 }
 
 tasks {
     withType<JavaCompile>().configureEach {
-        options.release = 25
+        options.release = javaVersion
         options.encoding = "UTF-8"
         options.compilerArgs.addAll(listOf("-Xlint:deprecation", "-Xlint:unchecked"))
     }
@@ -89,9 +96,14 @@ tasks {
             "version" to version.toString(),
             "minecraft" to sc.properties.get<String>("mod.mc_compat"),
             "loader" to sc.properties.get<String>("deps.fabric_loader"),
+            "java" to javaVersion,
         )
         inputs.properties(props)
-        filesMatching("fabric.mod.json") { expand(props) }
+        filesMatching("fabric.mod.json") {
+            expand(props)
+            // Las configuraciones de mixins de 1.21.1 no existen en este jar
+            filter { it.replace(Regex(""",\s*"[^"]*\.legacy\.mixins\.json""""), "") }
+        }
     }
 
     jar {

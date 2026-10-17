@@ -1,4 +1,4 @@
-package com.takumistudios.hammer_repair.test;
+package com.takumistudios.hammer_repair.test.modern;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.takumistudios.hammer_repair.recipe.HammerRecipes;

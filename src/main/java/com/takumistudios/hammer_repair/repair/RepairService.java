@@ -1,5 +1,6 @@
 package com.takumistudios.hammer_repair.repair;
 
+import com.takumistudios.hammer_repair.compat.Versions;
 import com.takumistudios.hammer_repair.config.CommonConfig;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;

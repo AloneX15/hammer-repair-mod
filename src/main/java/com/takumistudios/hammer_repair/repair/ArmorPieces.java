@@ -1,10 +1,9 @@
 package com.takumistudios.hammer_repair.repair;
 
-import net.minecraft.core.component.DataComponents;
+import com.takumistudios.hammer_repair.compat.Versions;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.equipment.Equippable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +18,11 @@ public final class ArmorPieces {
 
     /** Armadura (incluida la de otros mods) para casco, pechera, pantalones o botas. Excluye élitros y similares. */
     public static boolean isEligible(ItemStack stack) {
-        if (stack.isEmpty() || !stack.isDamageableItem() || stack.has(DataComponents.GLIDER)) {
+        if (stack.isEmpty() || !stack.isDamageableItem()) {
             return false;
         }
-        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
-        return equippable != null && SLOTS.contains(equippable.slot());
+        EquipmentSlot slot = Versions.armorSlot(stack);
+        return slot != null && SLOTS.contains(slot);
     }
 
     public static boolean isRepairable(ItemStack stack) {
@@ -37,8 +36,7 @@ public final class ArmorPieces {
             return ItemStack.EMPTY;
         }
         // La pieza debe ir en su propia ranura (una pechera no cuenta si un mod la pone en la cabeza)
-        Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
-        return equippable != null && equippable.slot() == slot ? stack : ItemStack.EMPTY;
+        return Versions.armorSlot(stack) == slot ? stack : ItemStack.EMPTY;
     }
 
     /** Ranura de la pieza equipada más desgastada (por porcentaje) o {@code null} si no hay ninguna dañada. */

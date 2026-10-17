@@ -67,7 +67,11 @@ public class HammerRecipeGameTests {
         Optional<RecipeHolder<CraftingRecipe>> recipe = helper.getLevel().getServer().getRecipeManager()
                 .getRecipeFor(RecipeType.CRAFTING, input, helper.getLevel());
         return recipe.isPresent() && recipe.get().id().equals(HammerRecipes.RECIPE_KEY)
+                //? if >=26.1 {
                 && recipe.get().value().assemble(input).is(ModItems.REPAIR_HAMMER);
+                //?} else {
+                /*&& recipe.get().value().assemble(input, helper.getLevel().registryAccess()).is(ModItems.REPAIR_HAMMER);
+                *///?}
     }
 
     private static boolean recipeExists(MinecraftServer server) {
@@ -82,7 +86,11 @@ public class HammerRecipeGameTests {
         return server.reloadResources(packs);
     }
 
+    //? if >=26.1 {
     @GameTest(environment = "hammer_repair:recipes", maxTicks = 3600)
+    //?} else {
+    /*@GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "hammer_repair_recipes", timeoutTicks = 3600)
+    *///?}
     public void configurableRecipeLifecycle(GameTestHelper helper) {
         MinecraftServer server = helper.getLevel().getServer();
         var source = server.createCommandSourceStack();

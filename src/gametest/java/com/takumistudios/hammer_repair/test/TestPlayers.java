@@ -36,10 +36,18 @@ final class TestPlayers {
         new EmbeddedChannel(connection);
         helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
         player.setGameMode(mode);
-        Vec3 pos = helper.absoluteVec(new Vec3(x, y, z));
-        player.snapTo(pos.x, pos.y, pos.z, yRot, 0.0F);
+        place(player, helper.absoluteVec(new Vec3(x, y, z)), yRot);
         player.setYHeadRot(yRot);
         return player;
+    }
+
+    /** Coloca al jugador en una posición absoluta mirando en horizontal hacia {@code yRot}. */
+    static void place(ServerPlayer player, Vec3 pos, float yRot) {
+        //? if >=26.1 {
+        player.snapTo(pos.x, pos.y, pos.z, yRot, 0.0F);
+        //?} else {
+        /*player.moveTo(pos.x, pos.y, pos.z, yRot, 0.0F);
+        *///?}
     }
 
     static void remove(GameTestHelper helper, ServerPlayer... players) {

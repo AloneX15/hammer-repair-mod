@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.takumistudios.hammer_repair.mixin",
+  "package": "com.takumistudios.hammer_repair.mixin.modern",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
     "RecipeManagerMixin",

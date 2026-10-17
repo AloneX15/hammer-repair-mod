@@ -20,8 +20,8 @@
   "depends": {
     "fabricloader": ">=${loader}",
     "minecraft": "${minecraft}",
-    "java": ">=25",
+    "java": ">=${java}",
     "fabric-api": "*"
   },
-  "mixins": ["hammer_repair.mixins.json"]
+  "mixins": ["hammer_repair.modern.mixins.json", "hammer_repair.legacy.mixins.json"]
 }

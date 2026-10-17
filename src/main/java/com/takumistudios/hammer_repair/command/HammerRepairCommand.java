@@ -40,7 +40,11 @@ public final class HammerRepairCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("hammerrepair")
+                //? if >=26.1 {
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                //?} else {
+                /*.requires(source -> source.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                *///?}
                 .then(Commands.literal("reload").executes(context -> {
                     reload(context.getSource());
                     return 1;
@@ -111,7 +115,7 @@ public final class HammerRepairCommand {
                 }
                 if (HammerRecipes.isDatapackOverride()) {
                     source.sendSuccess(() -> Component.translatable("hammer_repair.command.reload.datapack_override",
-                            HammerRecipes.RECIPE_KEY.identifier().toString()), true);
+                            HammerRecipes.recipeId().toString()), true);
                 } else if (!enabled) {
                     source.sendSuccess(() -> Component.translatable("hammer_repair.command.reload.recipe_disabled"), true);
                 }

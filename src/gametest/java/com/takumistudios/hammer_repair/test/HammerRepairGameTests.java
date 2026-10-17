@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos;
 
 /**
- * Gametests de servidor de la reparación: ./gradlew :26.3:runGameTest (y con -PcompatPack en la CI).
+ * Gametests de servidor de la reparación: ./gradlew :26.3:runGameTest o :1.21.1:runGameTest (y con -PcompatPack en la CI).
  * Configuración predeterminada: 2 de durabilidad por punto, 20 por golpe, un golpe cada 20 ticks y 3 bloques.
  */
 public class HammerRepairGameTests {
@@ -297,8 +297,7 @@ public class HammerRepairGameTests {
         TestPlayers.wear(pair[1], EquipmentSlot.CHEST, chest);
         TestPlayers.use(pair[0], InteractionHand.MAIN_HAND);
         helper.runAfterDelay(10, () -> {
-            var pos = helper.absoluteVec(new net.minecraft.world.phys.Vec3(1.5, 2, 7.5));
-            pair[1].snapTo(pos.x, pos.y, pos.z, 180.0F, 0.0F);
+            TestPlayers.place(pair[1], helper.absoluteVec(new net.minecraft.world.phys.Vec3(1.5, 2, 7.5)), 180.0F);
         });
         helper.runAfterDelay(AFTER_HIT + 20, () -> {
             check(helper, chest.getDamageValue() == 100, "fuera de alcance no se repara");

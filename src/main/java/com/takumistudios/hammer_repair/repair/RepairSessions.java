@@ -1,5 +1,6 @@
 package com.takumistudios.hammer_repair.repair;
 
+import com.takumistudios.hammer_repair.compat.Versions;
 import com.takumistudios.hammer_repair.config.CommonConfig;
 import com.takumistudios.hammer_repair.config.HammerConfig;
 import com.takumistudios.hammer_repair.registry.ModItems;
@@ -266,6 +267,6 @@ public final class RepairSessions {
             return;
         }
         LAST_MESSAGES.put(player.getUUID(), new LastMessage(key, now));
-        player.sendOverlayMessage(Component.translatable(key, args));
+        Versions.sendOverlay(player, Component.translatable(key, args));
     }
 }

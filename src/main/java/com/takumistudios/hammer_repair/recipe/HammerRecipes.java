@@ -16,7 +16,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -26,6 +25,13 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
+
+//? if >=26.1 {
+import net.minecraft.world.item.ItemStackTemplate;
+//?} else {
+/*import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
+*///?}
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -41,12 +47,16 @@ import static com.takumistudios.hammer_repair.HammerRepair.LOGGER;
  *
  * <p>Prioridad: <b>datapack &gt; receta generada desde config &gt; valores predeterminados</b>. El mod no incluye ningún
  * JSON de receta, así que si al cargar los datos ya existe ese identificador lo ha puesto un datapack y se respeta.
- * Los puntos de inyección (mixins) dependen de la versión: {@code RecipeManager.prepare} hasta 26.2 y el registro
- * recargable de recetas desde 26.3.
+ * Los puntos de inyección (mixins) dependen de la versión: {@code RecipeManager.apply} en 1.21.1,
+ * {@code RecipeManager.prepare} hasta 26.2 y el registro recargable de recetas desde 26.3.
  */
 public final class HammerRecipes {
+    //? if >=26.1 {
     public static final ResourceKey<Recipe<?>> RECIPE_KEY =
             ResourceKey.create(Registries.RECIPE, HammerRepair.id("repair_hammer"));
+    //?} else {
+    /*public static final Identifier RECIPE_KEY = HammerRepair.id("repair_hammer");
+    *///?}
 
     /** Si la última carga de datos encontró la receta definida por un datapack. */
     private static volatile boolean datapackOverride;
@@ -56,6 +66,15 @@ public final class HammerRecipes {
     private static volatile List<Diagnostic> lastReported = List.of();
 
     private HammerRecipes() {
+    }
+
+    /** Identificador de la receta, para mensajes y registros. */
+    public static Identifier recipeId() {
+        //? if >=26.1 {
+        return RECIPE_KEY.identifier();
+        //?} else {
+        /*return RECIPE_KEY;
+        *///?}
     }
 
     public static boolean isDatapackOverride() {
@@ -81,7 +100,7 @@ public final class HammerRecipes {
             HammerConfig.RecipeState state = HammerConfig.recipe();
             if (datapackDefinesIt) {
                 LOGGER.info("La receta {} la define un datapack: tiene prioridad sobre config/hammer_repair/recipe.json",
-                        RECIPE_KEY.identifier());
+                        recipeId());
                 return Optional.empty();
             }
             if (!state.generatesRecipe()) {
@@ -105,6 +124,7 @@ public final class HammerRecipes {
 
     /** Construye la receta vanilla equivalente. */
     public static Recipe<?> build(RecipeConfig.Resolved resolved, HolderGetter<Item> items) {
+        //? if >=26.1 {
         Recipe.CommonInfo common = new Recipe.CommonInfo(true);
         CraftingRecipe.CraftingBookInfo book = new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.EQUIPMENT, "");
         ItemStackTemplate result = new ItemStackTemplate(ModItems.REPAIR_HAMMER);
@@ -116,6 +136,17 @@ public final class HammerRecipes {
             }
             return new ShapelessRecipe(common, book, result, ingredients);
         }
+        //?} else {
+        /*ItemStack result = new ItemStack(ModItems.REPAIR_HAMMER);
+
+        if (resolved.type() == RecipeConfig.Type.SHAPELESS) {
+            NonNullList<Ingredient> ingredients = NonNullList.create();
+            for (List<RecipeConfig.Simple> slot : resolved.slots()) {
+                ingredients.add(toIngredient(slot, items));
+            }
+            return new ShapelessRecipe("", CraftingBookCategory.EQUIPMENT, result, ingredients);
+        }
+        *///?}
 
         Map<Character, Ingredient> key = new LinkedHashMap<>();
         List<String> pattern = new ArrayList<>();
@@ -125,7 +156,7 @@ public final class HammerRecipes {
             for (int column = 0; column < resolved.width(); column++) {
                 List<RecipeConfig.Simple> slot = resolved.slots().get(row * resolved.width() + column);
                 if (slot == null) {
-                    line.append(ShapedRecipePattern.EMPTY_SLOT);
+                    line.append(' ');
                 } else {
                     key.put(symbol, toIngredient(slot, items));
                     line.append(symbol);
@@ -134,7 +165,11 @@ public final class HammerRecipes {
             }
             pattern.add(line.toString());
         }
+        //? if >=26.1 {
         return new ShapedRecipe(common, book, ShapedRecipePattern.of(key, pattern), result);
+        //?} else {
+        /*return new ShapedRecipe("", CraftingBookCategory.EQUIPMENT, ShapedRecipePattern.of(key, pattern), result);
+        *///?}
     }
 
     private static Ingredient toIngredient(List<RecipeConfig.Simple> alternatives, HolderGetter<Item> items) {
@@ -148,12 +183,21 @@ public final class HammerRecipes {
                     directItems.add(item);
                 }
             } else {
+                //? if >=26.1 {
                 HolderSet<Item> tag = items.getOrThrow(TagKey.create(Registries.ITEM, id));
                 parts.add(Ingredient.of(tag));
+                //?} else {
+                /*// En 1.21.1 el ingrediente de etiqueta se resuelve al usarlo, con las etiquetas ya enlazadas
+                parts.add(Ingredient.of(TagKey.create(Registries.ITEM, id)));
+                *///?}
             }
         }
         if (!directItems.isEmpty()) {
+            //? if >=26.1 {
             parts.addFirst(Ingredient.of(directItems.stream()));
+            //?} else {
+            /*parts.addFirst(Ingredient.of(directItems.toArray(Item[]::new)));
+            *///?}
         }
         // Etiquetas y objetos mezclados: ingrediente "cualquiera de" de Fabric API (se evalúa al usarlo)
         return parts.size() == 1 ? parts.getFirst() : DefaultCustomIngredients.any(parts.toArray(Ingredient[]::new));
@@ -162,6 +206,8 @@ public final class HammerRecipes {
     /**
      * Consulta durante la carga de datos: las etiquetas existen pero su contenido aún no está enlazado, así que aquí
      * solo se comprueba su existencia. Las vacías se detectan después con {@link #verifyLoaded(MinecraftServer)}.
+     * En 1.21.1 ni siquiera se sabe si existen (se enlazan al terminar la recarga): se aceptan y
+     * {@link #verifyLoaded(MinecraftServer)} avisa en el log.
      */
     private record LoadingLookup(HolderGetter<Item> items) implements RecipeConfig.IngredientLookup {
         @Override
@@ -172,7 +218,11 @@ public final class HammerRecipes {
         @Override
         public boolean tagHasItems(String id) {
             Identifier identifier = Identifier.tryParse(id);
+            //? if >=26.1 {
             return identifier != null && items.get(TagKey.create(Registries.ITEM, identifier)).isPresent();
+            //?} else {
+            /*return identifier != null;
+            *///?}
         }
     }
 

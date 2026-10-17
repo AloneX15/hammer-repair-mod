@@ -1,4 +1,4 @@
-package com.takumistudios.hammer_repair.recipe;
+package com.takumistudios.hammer_repair.mixin.modern;
 
 import net.minecraft.resources.RegistryOps;
 

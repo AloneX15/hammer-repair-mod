@@ -57,8 +57,13 @@ public final class HammerNetwork {
     }
 
     public static void init() {
+        //? if >=26.1 {
         PayloadTypeRegistry.clientboundConfiguration().register(Handshake.TYPE, Handshake.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Settings.TYPE, Settings.CODEC);
+        //?} else {
+        /*PayloadTypeRegistry.configurationS2C().register(Handshake.TYPE, Handshake.CODEC);
+        PayloadTypeRegistry.playS2C().register(Settings.TYPE, Settings.CODEC);
+        *///?}
 
         ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
             try {

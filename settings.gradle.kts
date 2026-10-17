@@ -7,6 +7,8 @@ pluginManagement {
     }
     plugins {
         id("net.fabricmc.fabric-loom") version "1.19.1"
+        // 1.21.1 está ofuscado: mismo artefacto de Loom, en modo remapeo (build.obf.gradle.kts)
+        id("net.fabricmc.fabric-loom-remap") version "1.19.1"
     }
 }
 
@@ -17,7 +19,8 @@ plugins {
 
 stonecutter {
     create(rootProject) {
-        // Una build por versión de Minecraft soportada (26.x en adelante)
+        // Una build por versión de Minecraft: 26.x y 1.21.1 como soporte extendido (con su propio buildscript)
+        version("1.21.1").buildscript("build.obf.gradle.kts")
         versions("26.1.2", "26.2", "26.3")
         vcsVersion = "26.3"
     }

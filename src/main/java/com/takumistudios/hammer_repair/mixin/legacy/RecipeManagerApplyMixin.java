@@ -1,53 +1,62 @@
-package com.takumistudios.hammer_repair.mixin;
+package com.takumistudios.hammer_repair.mixin.legacy;
 
+import com.google.gson.JsonElement;
 import com.takumistudios.hammer_repair.HammerRepair;
 import com.takumistudios.hammer_repair.recipe.HammerRecipes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeMap;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * Hasta 26.2 las recetas se leen en {@code RecipeManager.prepare}: al terminar, si ningún datapack definió
- * {@code hammer_repair:repair_hammer}, se añade la receta generada desde config. Desde 26.3 este mixin queda vacío y
- * se usa {@link RegistryLoadTaskMixin}. Ver MIXINS.md.
+ * En 1.21.1 las recetas se leen en {@code RecipeManager.apply}: al terminar, si ningún datapack definió
+ * {@code hammer_repair:repair_hammer}, se añade la receta generada desde config. Ver MIXINS.md.
  */
 @Mixin(RecipeManager.class)
-public abstract class RecipeManagerMixin {
-    //? if <26.3 {
-    /*@Shadow
+public abstract class RecipeManagerApplyMixin {
+    @Shadow
     @Final
     private HolderLookup.Provider registries;
 
-    @Inject(method = "prepare(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)Lnet/minecraft/world/item/crafting/RecipeMap;",
-            at = @At("RETURN"), cancellable = true)
-    private void hammer_repair$addConfigRecipe(ResourceManager manager, ProfilerFiller profiler, CallbackInfoReturnable<RecipeMap> cir) {
+    @Shadow
+    public abstract Optional<RecipeHolder<?>> byKey(Identifier id);
+
+    @Shadow
+    public abstract Collection<RecipeHolder<?>> getRecipes();
+
+    @Shadow
+    public abstract void replaceRecipes(Iterable<RecipeHolder<?>> recipes);
+
+    @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+            at = @At("TAIL"))
+    private void hammer_repair$addConfigRecipe(Map<Identifier, JsonElement> jsons, ResourceManager manager, ProfilerFiller profiler,
+                                               CallbackInfo ci) {
         try {
-            RecipeMap loaded = cir.getReturnValue();
-            boolean fromDatapack = loaded.byKey(HammerRecipes.RECIPE_KEY) != null;
+            boolean fromDatapack = byKey(HammerRecipes.RECIPE_KEY).isPresent();
             Optional<Recipe<?>> recipe = HammerRecipes.onRecipesLoading(fromDatapack, this.registries.lookupOrThrow(Registries.ITEM));
             if (recipe.isPresent()) {
-                List<RecipeHolder<?>> holders = new ArrayList<>(loaded.values());
+                List<RecipeHolder<?>> holders = new ArrayList<>(getRecipes());
                 holders.add(new RecipeHolder<>(HammerRecipes.RECIPE_KEY, recipe.get()));
-                cir.setReturnValue(RecipeMap.create(holders));
+                replaceRecipes(holders);
             }
         } catch (RuntimeException e) {
             HammerRepair.LOGGER.error("No se pudo añadir la receta del martillo; la carga de datos sigue sin ella", e);
         }
     }
-    *///?}
 }

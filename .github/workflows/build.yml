@@ -77,7 +77,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        minecraft: ["26.1.2", "26.2", "26.3"]
+        minecraft: ["1.21.1", "26.1.2", "26.2", "26.3"]
         # Sin compat pack: compat: [false]
         compat: [false, true]
     steps:
@@ -86,7 +86,10 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 25
+          # 21 para compilar 1.21.1 (toolchain) y 25 para Gradle y 26.x; el último queda por defecto
+          java-version: |
+            21
+            25
 
       - uses: gradle/actions/setup-gradle@v6
 
@@ -126,6 +129,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # 1.21.1 no tiene API de tests de cliente
         minecraft: ["26.1.2", "26.2", "26.3"]
     steps:
       - uses: actions/checkout@v7
@@ -133,7 +137,10 @@ jobs:
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 25
+          # 21 para compilar 1.21.1 (toolchain) y 25 para Gradle y 26.x; el último queda por defecto
+          java-version: |
+            21
+            25
 
       - uses: gradle/actions/setup-gradle@v6
 
@@ -198,7 +205,7 @@ jobs:
             --prerelease \
             --target "$GITHUB_SHA" \
             --title "Dev build ($(echo "$GITHUB_SHA" | cut -c1-7))" \
-            --notes "Build automática de la rama main, generada tras pasar todas las pruebas en MC 26.1.2, 26.2 y 26.3.
+            --notes "Build automática de la rama main, generada tras pasar todas las pruebas en MC 1.21.1, 26.1.2, 26.2 y 26.3.
 
           Puede tener cambios sin publicar oficialmente. Elige el jar de tu versión de Minecraft; necesitas Fabric API.
 

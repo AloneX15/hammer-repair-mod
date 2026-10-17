@@ -16,7 +16,11 @@ import net.minecraft.world.level.GameType;
  * de pruebas: los lotes de entornos distintos no se ejecutan a la vez.
  */
 public class HammerConsentGameTests {
+    //? if >=26.1 {
     @GameTest(environment = "hammer_repair:consent", maxTicks = 200)
+    //?} else {
+    /*@GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "hammer_repair_consent", timeoutTicks = 200)
+    *///?}
     public void targetMustCrouchToAccept(GameTestHelper helper) {
         CommonConfig original = HammerConfig.common();
         HammerConfig.apply(new CommonConfig(original.durabilityPerXp(), original.maxRepairPerHit(), original.hitIntervalTicks(),

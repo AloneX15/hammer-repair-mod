@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.InteractionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,12 +53,7 @@ public final class HammerRepair implements ModInitializer {
         });
 
         // Reparación propia: prioridad sobre equipar la pieza sostenida (PASS si no se cumplen las condiciones)
-        UseItemCallback.EVENT.register((player, level, hand) -> {
-            if (!repairsEnabled) {
-                return InteractionResult.PASS;
-            }
-            return RepairHammerItem.onUseItem(player, level, hand);
-        });
+        UseItemCallback.EVENT.register(RepairHammerItem::onUseItem);
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (!repairsEnabled) {
@@ -130,6 +124,11 @@ public final class HammerRepair implements ModInitializer {
         });
 
         LOGGER.info("Hammer Repair {} cargado. Creado por TakumiStudios.", version());
+    }
+
+    /** Falso si el tick de reparaciones falló demasiadas veces seguidas (hasta reiniciar). */
+    public static boolean repairsEnabled() {
+        return repairsEnabled;
     }
 
     public static Identifier id(String path) {
