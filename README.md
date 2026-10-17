@@ -1,3 +1,5 @@
+![Hammer Repair](docs/images/banner.jpg)
+
 # Hammer Repair
 
 [![Build](https://github.com/AloneX15/hammer-repair-mod/actions/workflows/build.yml/badge.svg)](https://github.com/AloneX15/hammer-repair-mod/actions/workflows/build.yml)
@@ -10,7 +12,52 @@ Adds a permanent repair hammer that mends your own or a teammate's armor by spen
 Un único martillo de progresión avanzada que repara armaduras gastando la experiencia de quien lo usa: útil en
 cooperativo para mantener equipado a un compañero y en solitario para reparar tus propias piezas.
 
-![Reparación propia](docs/screenshots/self_repair_first_person.png)
+| Reparar a un compañero | Reparar tu propia armadura |
+|---|---|
+| ![Un jugador repara con el martillo la armadura de diamante de su compañero](docs/images/cooperative-repair.jpg) | ![Primera persona: martillo en la segunda mano y pechera dañada en la principal](docs/images/self-repair.jpg) |
+
+## El martillo
+
+<img src="docs/images/icon-256.png" alt="Martillo de reparación" width="128" align="right">
+
+| | |
+|---|---|
+| **Objeto** | `hammer_repair:repair_hammer` (Martillo de reparación / Repair Hammer) |
+| **Durabilidad** | Ninguna: no se desgasta ni hace falta repararlo |
+| **Pila** | 1 |
+| **Rareza** | Épica (nombre en morado) |
+| **Fuego y lava** | Resistente, como la netherita |
+| **Encantamientos** | No admite |
+| **Combate** | Sin daño ni efectos extra |
+| **Modo creativo** | Pestaña *Herramientas y utilidades* |
+| **Modelo** | 3D, hecho en Blockbench, con textura de 128×128 |
+
+### Cómo se usa
+
+Se **mantiene pulsado el clic derecho**. Cada **segundo** se completa un golpe que repara **hasta 20 de durabilidad**
+y cuesta **1 punto de experiencia por cada 2 de durabilidad**, siempre al jugador que usa el martillo.
+
+| Modo | Manos | Qué repara |
+|---|---|---|
+| **Compañero** | Martillo en la mano principal, apuntando a otro jugador a **3 bloques** o menos, sin nada en medio | La pieza equipada con **menor porcentaje** de durabilidad (empates: casco, pechera, pantalones, botas) |
+| **Propia** | Martillo en la **segunda mano**, pieza dañada en la principal | Esa pieza. Tiene prioridad sobre equiparla; sin daño, el juego se comporta como siempre |
+
+Un ejemplo: reparar 400 de durabilidad cuesta 200 puntos de experiencia (algo más de 11 niveles si partes de 0) y lleva 20 golpes,
+unos 20 segundos.
+
+### Receta
+
+| Receta predeterminada | Tooltip en el juego |
+|---|---|
+| ![Receta en la mesa de crafteo](docs/images/recipe.jpg) | ![Tooltip del martillo](docs/images/tooltip.jpg) |
+
+| | | |
+|---|---|---|
+| Bloque de netherita | Estrella del Nether | Bloque de netherita |
+| Lingote de netherita | Núcleo pesado | Lingote de netherita |
+| | Vara de blaze | |
+
+La receta se puede cambiar o desactivar en `config/hammer_repair/recipe.json` (ver [Configuración](#configuración)).
 
 ## Características
 
@@ -33,14 +80,6 @@ cooperativo para mantener equipado a un compañero y en solitario para reparar t
 - **Receta configurable** en `config/hammer_repair/recipe.json`: con forma o sin forma, objetos de Minecraft o de otros
   mods, etiquetas y alternativas. Se recarga con `/hammerrepair reload`.
 - Traducciones en español e inglés.
-
-### Receta predeterminada
-
-| | | |
-|---|---|---|
-| Bloque de netherita | Estrella del Nether | Bloque de netherita |
-| Lingote de netherita | Núcleo pesado | Lingote de netherita |
-| | Vara de blaze | |
 
 ## Instalación
 
@@ -153,6 +192,9 @@ Todas las versiones salen del mismo código con Stonecutter. 1.21.1 usa `build.o
 mappings de Mojang); el código se escribe con los nombres de 26.x y los renombres (`Identifier` ↔ `ResourceLocation`,
 anotación de los gametests) los traduce Stonecutter. Las diferencias de API están en `compat/Versions.java`, y las
 clases de una sola época en paquetes `modern` (26.x) o `legacy` (1.21.1).
+
+Capturas, banner e icono (y cómo regenerarlos): [docs/capturas.md](docs/capturas.md). Descripción para Modrinth y
+CurseForge: [docs/store/description.md](docs/store/description.md).
 
 Errores corregidos y su prueba de regresión: [docs/registro-de-errores.md](docs/registro-de-errores.md). Mixins y su
 motivo: [MIXINS.md](MIXINS.md).

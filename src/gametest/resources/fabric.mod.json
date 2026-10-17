@@ -14,7 +14,8 @@
       "com.takumistudios.hammer_repair.test.HammerRecipeGameTests"
     ],
     "fabric-client-gametest": [
-      "com.takumistudios.hammer_repair.test.modern.HammerRepairClientGameTest"
+      "com.takumistudios.hammer_repair.test.modern.HammerRepairClientGameTest",
+      "com.takumistudios.hammer_repair.test.modern.HammerRepairShowcaseClientGameTest"
     ]
   },
   "depends": {
