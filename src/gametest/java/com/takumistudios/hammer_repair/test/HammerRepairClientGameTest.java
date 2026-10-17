@@ -54,12 +54,6 @@ public class HammerRepairClientGameTest implements FabricClientGameTest {
             check(server.computeOnServer(s -> s.getPlayerList().getPlayers().getFirst().getRecipeBook().contains(HammerRecipes.RECIPE_KEY)),
                     "la receta del martillo debe estar en el libro de recetas");
 
-            // Modelo 3D y textura del martillo en reposo, en la mano principal
-            server.runCommand("item replace entity @a weapon.mainhand with hammer_repair:repair_hammer");
-            context.getInput().lookAt(0.0F, 10.0F);
-            context.waitTicks(20);
-            context.takeScreenshot("hammer_repair_held_model");
-
             prepareSelfRepair(server);
             context.getInput().lookAt(0.0F, -40.0F);
             context.waitTicks(5);
