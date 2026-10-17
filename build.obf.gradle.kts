@@ -98,7 +98,7 @@ tasks {
             "name" to modName,
             "version" to version.toString(),
             "minecraft" to sc.properties.get<String>("mod.mc_compat"),
-            "loader" to sc.properties.get<String>("deps.fabric_loader"),
+            "loader" to sc.properties.get<String>("mod.min_loader"),
             "java" to javaVersion,
         )
         inputs.properties(props)

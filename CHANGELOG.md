@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- El jar ya no exige la última versión de Fabric Loader, sino la mínima que pide Fabric API en cada versión de
+  Minecraft: 0.15.11 en 1.21.x, 0.18.4 en 26.1.x y 26.2.x, y 0.19.3 en 26.3.x. La 1.0.0 pedía la 0.19.5 y no
+  arrancaba con launchers que traen una anterior.
+
 ## 1.0.0
 
 - Martillo de reparación (`hammer_repair:repair_hammer`): permanente, no apilable, sin encantamientos.
