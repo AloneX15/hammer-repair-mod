@@ -62,13 +62,13 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         });
 
         try (TestSingleplayerContext world = context.worldBuilder().create()) {
-            world.getConnection().waitForChunksRender();
+            waitForChunks(world);
             TestServerContext server = world.getServer();
             server.runCommand("time set noon");
             server.runCommand("weather clear");
             buildScene(server);
             context.waitTicks(40);
-            world.getConnection().waitForChunksRender();
+            waitForChunks(world);
 
             cooperativeRepair(world, server);
             selfRepair(world, server);
@@ -79,7 +79,7 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
     }
 
     private void shot(String name) {
-        context.runOnClient(client -> client.gui.toastManager().clear());
+        context.runOnClient(HammerRepairShowcaseClientGameTest::clearToasts);
         context.waitTicks(1);
         context.takeScreenshot(TestScreenshotOptions.of(name).withDestinationDir(out).disableCounterPrefix());
     }
@@ -94,10 +94,39 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         server.runCommand("kill @e[type=minecraft:item]");
     }
 
+    // Diferencias de cliente entre 26.1 y 26.2+ (pantalla, HUD y avisos pasan a Minecraft.gui)
+    private static void waitForChunks(TestSingleplayerContext world) {
+        //? if >=26.2 {
+        world.getConnection().waitForChunksRender();
+        //?} else {
+        /*world.getClientLevel().waitForChunksRender();
+        *///?}
+    }
+
     private static void setHudHidden(net.minecraft.client.Minecraft client, boolean hidden) {
+        //? if >=26.2 {
         if (client.gui.hud.isHidden() != hidden) {
             client.gui.hud.toggle();
         }
+        //?} else {
+        /*client.options.hideGui = hidden;
+        *///?}
+    }
+
+    private static void clearToasts(net.minecraft.client.Minecraft client) {
+        //? if >=26.2 {
+        client.gui.toastManager().clear();
+        //?} else {
+        /*client.getToastManager().clear();
+        *///?}
+    }
+
+    private static void closeScreen(net.minecraft.client.Minecraft client) {
+        //? if >=26.2 {
+        client.gui.setScreen(null);
+        //?} else {
+        /*client.setScreen(null);
+        *///?}
     }
 
     /** Quita los mobs de la aldea que se meterían en el plano (los jugadores y los displays se quedan). */
@@ -166,7 +195,7 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         context.runOnClient(client -> setHudHidden(client, true));
         context.getInput().lookAt(-53.6F, 8.0F);
         context.waitTicks(30);
-        world.getConnection().waitForChunksRender();
+        waitForChunks(world);
 
         // El herrero empieza a usar el martillo como lo haría el paquete de uso del cliente
         server.runOnServer(s -> {
@@ -191,7 +220,7 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         server.runCommand("tp @a 0.5 -60 -12 15 14");
         context.getInput().lookAt(15.0F, 14.0F);
         context.waitTicks(60);
-        world.getConnection().waitForChunksRender();
+        waitForChunks(world);
         context.getInput().holdMouse(InputConstants.MOUSE_BUTTON_RIGHT);
         context.waitTicks(21);
         shot("self_repair");
@@ -241,7 +270,7 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         context.waitTicks(3);
         shot("crafting_tooltip");
         context.runOnClient(client -> {
-            client.gui.setScreen(null);
+            closeScreen(client);
             client.options.guiScale().set(0);
             client.resizeGui();
         });
@@ -276,7 +305,7 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         context.runOnClient(client -> setHudHidden(client, true));
         context.getInput().lookAt(0.0F, -6.0F);
         context.waitTicks(20);
-        world.getConnection().waitForChunksRender();
+        waitForChunks(world);
         shot("banner_raw");
         context.runOnClient(client -> setHudHidden(client, false));
     }
@@ -293,7 +322,7 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         context.runOnClient(client -> setHudHidden(client, true));
         context.getInput().lookAt(180.0F, 0.0F);
         context.waitTicks(20);
-        world.getConnection().waitForChunksRender();
+        waitForChunks(world);
         shot("icon_raw");
         context.runOnClient(client -> setHudHidden(client, false));
     }
