@@ -5,12 +5,14 @@
   "hammer_repair.tooltip.partner": "Mano principal: mantén clic derecho sobre un jugador para reparar su armadura",
   "hammer_repair.tooltip.self": "Segunda mano: mantén clic derecho con una pieza de armadura dañada en la mano principal",
   "hammer_repair.tooltip.cost": "Gasta la experiencia de quien usa el martillo",
+  "hammer_repair.tooltip.cost_rate": "Gasta la experiencia de quien lo usa: 1 punto cada %s de durabilidad",
 
   "hammer_repair.message.no_xp": "No tienes experiencia suficiente para seguir reparando",
   "hammer_repair.message.no_damaged_armor": "%s no tiene armadura dañada",
   "hammer_repair.message.needs_consent": "%s debe agacharse para aceptar la reparación",
   "hammer_repair.message.finished": "Reparación completada",
   "hammer_repair.message.finished_target": "Reparación de la armadura de %s completada",
+  "hammer_repair.message.being_repaired": "%s está reparando tu armadura",
   "hammer_repair.message.disabled": "El martillo de reparación está desactivado por errores repetidos hasta reiniciar el servidor (ver el log del servidor)",
 
   "hammer_repair.disconnect.missing": "Este servidor requiere Hammer Repair %s (protocolo de red %s) en el cliente.",
@@ -72,5 +74,6 @@
   "hammer_repair.diagnostic.alt_item_missing": "se omite la alternativa %s: el objeto no existe",
   "hammer_repair.diagnostic.alt_tag_missing": "se omite la alternativa %s: la etiqueta no existe o no contiene objetos",
   "hammer_repair.diagnostic.slot_no_valid": "ninguna alternativa es válida",
-  "hammer_repair.diagnostic.out_of_range": "el valor %s está fuera del rango %s–%s"
+  "hammer_repair.diagnostic.out_of_range": "el valor %s está fuera del rango %s–%s",
+  "hammer_repair.diagnostic.invalid_choice": "valor %s no válido; usa %s"
 }

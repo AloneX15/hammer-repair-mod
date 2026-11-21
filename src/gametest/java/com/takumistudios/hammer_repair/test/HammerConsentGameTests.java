@@ -30,7 +30,8 @@ public class HammerConsentGameTests {
     public void targetMustCrouchToAccept(GameTestHelper helper) {
         CommonConfig original = HammerConfig.common();
         HammerConfig.apply(new CommonConfig(original.durabilityPerXp(), original.maxRepairPerHit(), original.hitIntervalTicks(),
-                original.maxDistance(), true), null, java.util.List.of());
+                original.maxDistance(), true, original.messages(), original.showProgress(), original.notifyTarget(),
+                original.particles()), null, java.util.List.of());
 
         ServerPlayer repairer = TestPlayers.spawn(helper, GameType.SURVIVAL, 1.5, 2, 1.5, 0.0F);
         ServerPlayer target = TestPlayers.spawn(helper, GameType.SURVIVAL, 1.5, 2, 3.5, 180.0F);

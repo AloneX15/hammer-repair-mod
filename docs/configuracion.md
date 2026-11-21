@@ -45,7 +45,11 @@ indican el campo, la fila y la columna o el número de ingrediente.
   "max_repair_per_hit": 20,
   "hit_interval_ticks": 20,
   "max_distance": 3.0,
-  "require_target_sneaking": false
+  "require_target_sneaking": false,
+  "messages": "all",
+  "show_progress": false,
+  "notify_target": true,
+  "particles": true
 }
 ```
 
@@ -57,8 +61,44 @@ indican el campo, la fila y la columna o el número de ingrediente.
 | `hit_interval_ticks` | entero | 5–200 | 20 | Duración de cada golpe en ticks (20 = 1 s) |
 | `max_distance` | número | 1–6 | 3.0 | Alcance de la reparación cooperativa en bloques |
 | `require_target_sneaking` | booleano | | `false` | El compañero debe estar agachado para aceptar la reparación |
+| `messages` | texto | `"all"`, `"none"` | `"all"` | Avisos en la barra de acción: todos o ninguno ("solo la acción") |
+| `show_progress` | booleano | | `false` | Tras cada golpe, la pieza y su durabilidad (`Botas de diamante  Durabilidad: 99 / 429`) |
+| `notify_target` | booleano | | `true` | Al empezar, el compañero ve `<jugador> está reparando tu armadura` |
+| `particles` | booleano | | `true` | Chispas y partículas de aldeano feliz en cada golpe |
 
-Un campo que falte toma su valor predeterminado (con un aviso); un campo desconocido o fuera de rango es un error.
+Un campo de la 1.0.x que falte toma su valor predeterminado (con un aviso); un campo desconocido, de un tipo que no
+corresponde o fuera de rango es un error. Los cuatro campos de avisos (desde 1.1.0) son **opcionales**: si faltan se
+usa el predeterminado sin aviso, así que un `common.json` creado con la 1.0.x sigue igual tras actualizar.
+
+> Volver de la 1.1.x a la 1.0.x con un `common.json` que tenga los campos nuevos lo marca como inválido (campo
+> desconocido): se copia a `common.json.<fecha>.bak` y se regenera. Basta con borrar esos campos antes de volver.
+
+### Avisos y efectos
+
+Todos los avisos salen en la **barra de acción** (encima de la barra rápida), como los de vanilla al intentar dormir o
+al montar: una línea corta que se borra sola y nunca va al chat. Los que se repiten (sin experiencia, consentimiento…)
+no se vuelven a mostrar en 2 segundos.
+
+| Aviso | Lo ve | Se controla con |
+|---|---|---|
+| Sin experiencia, sin armadura dañada, consentimiento, reparación completada | Reparador | `messages` |
+| Durabilidad tras cada golpe | Reparador | `messages` y `show_progress` |
+| `<jugador> está reparando tu armadura` (una vez al empezar) | Compañero | `messages` y `notify_target` |
+| Martillo desactivado por errores repetidos | Reparador | Siempre visible: indica un fallo del servidor |
+
+- **Solo la acción:** `"messages": "none"`. Se repara y se cobra igual; el jugador ve el golpe del brazo, la barra de
+  experiencia bajando y, al reparar su propia pieza, la barra de durabilidad del objeto.
+- **Sin partículas:** `"particles": false`. El golpe y el sonido se mantienen. Cada jugador puede además reducir las
+  partículas o el volumen con las opciones de vanilla (*Gráficos → Partículas*, *Música y sonidos → Jugadores*).
+- La durabilidad usa la traducción de vanilla (`item.durability`), así que sale en el idioma de cada jugador.
+- Un cliente 1.0.x conectado a un servidor 1.1.x ve el aviso al compañero en inglés (no tiene esa traducción) y el
+  resto igual.
+
+### Tooltip
+
+El tooltip del martillo muestra el coste real del servidor al que estás conectado («1 punto cada N de durabilidad»).
+Se actualiza al entrar y tras `/hammerrepair reload`. En el menú principal, o conectado a un servidor 1.0.x, muestra el
+texto genérico («Gasta la experiencia de quien usa el martillo»).
 
 ### Coste de cada golpe
 

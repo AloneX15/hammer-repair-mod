@@ -27,6 +27,17 @@ Hold **right-click**. Every **second** the hammer lands a hit that restores **up
   action-bar messages (no XP, nothing to repair, consent, done) that never spam.
 - Optional consent: with `require_target_sneaking`, your teammate has to crouch to accept the repair.
 
+## Vanilla-style feedback, your server's choice
+
+Every message is a short action-bar line, like vanilla's, never chat spam. The server decides how much players see.
+
+| Repair progress (`show_progress`) | Your teammate knows (`notify_target`) | Just the action (`"messages": "none"`) |
+|---|---|---|
+| ![The repairer sees the piece and its durability after every hit](https://raw.githubusercontent.com/AloneX15/hammer-repair-mod/main/docs/images/repair-progress.gif) | ![The teammate sees "Smith is repairing your armor"](https://raw.githubusercontent.com/AloneX15/hammer-repair-mod/main/docs/images/partner-notice.gif) | ![The same repair with no text at all](https://raw.githubusercontent.com/AloneX15/hammer-repair-mod/main/docs/images/action-only.gif) |
+| The piece and its durability after each hit, using vanilla's own translated text | A one-time notice when someone starts repairing your armor | No messages at all: swing, sound and particles only |
+
+The hammer's tooltip also shows the real cost on the server you're playing on.
+
 ## The hammer
 
 | | |
@@ -67,9 +78,14 @@ mod, and alternatives per slot. Apply changes with `/hammerrepair reload` (opera
 | `hit_interval_ticks` | 20 | 5–200 | Ticks between hits (20 = 1 second) |
 | `max_distance` | 3.0 | 1–6 | Reach of the teammate repair, in blocks |
 | `require_target_sneaking` | false | | Your teammate must crouch to accept |
+| `messages` | "all" | "all", "none" | `"none"` hides every action-bar message: just the action |
+| `show_progress` | false | | Show the piece's durability after each hit |
+| `notify_target` | true | | Tell your teammate who is repairing their armor |
+| `particles` | true | | Sparks and happy-villager particles on each hit |
 
-Invalid files are rejected with a clear message (field, row and column), and the last valid configuration stays
-active. Full guide: [configuration (Spanish)](https://github.com/AloneX15/hammer-repair-mod/blob/main/docs/configuracion.md).
+The feedback options are optional: a config from 1.0.x keeps working unchanged. Clients and servers on 1.0.x and
+1.1.x can play together. Invalid files are rejected with a clear message (field, row and column), and the last valid
+configuration stays active. Full guide: [configuration (Spanish)](https://github.com/AloneX15/hammer-repair-mod/blob/main/docs/configuracion.md).
 
 ## Compatibility
 

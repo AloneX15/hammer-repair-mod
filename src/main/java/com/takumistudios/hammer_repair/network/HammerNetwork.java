@@ -25,10 +25,15 @@ import static com.takumistudios.hammer_repair.HammerRepair.LOGGER;
  *   <li>{@link Handshake}: en la fase de configuración, con el número de protocolo. Un cliente sin el mod o con otro
  *       protocolo recibe un mensaje claro en lugar de un fallo extraño.</li>
  *   <li>{@link Settings}: el alcance del servidor para que el cliente prediga el uso (al entrar y tras recargar).</li>
+ *   <li>{@link RepairCost} (desde 1.1.0, opcional): durabilidad por punto de experiencia, solo para el tooltip. Se
+ *       envía solo si el cliente lo registra, así que clientes y servidores 1.0.x siguen siendo compatibles.</li>
  * </ul>
  */
 public final class HammerNetwork {
-    /** Subir al cambiar el formato de cualquier paquete o el comportamiento acordado entre cliente y servidor. */
+    /**
+     * Subir al cambiar el formato de cualquier paquete o el comportamiento acordado entre cliente y servidor. Un paquete
+     * nuevo y opcional (que se envía solo con {@code canSend}) no lo sube.
+     */
     public static final int PROTOCOL_VERSION = 1;
 
     private HammerNetwork() {
@@ -56,13 +61,26 @@ public final class HammerNetwork {
         }
     }
 
+    public record RepairCost(int durabilityPerXp) implements CustomPacketPayload {
+        public static final Type<RepairCost> TYPE = new Type<>(HammerRepair.id("repair_cost"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, RepairCost> CODEC =
+                ByteBufCodecs.VAR_INT.map(RepairCost::new, RepairCost::durabilityPerXp).cast();
+
+        @Override
+        public Type<RepairCost> type() {
+            return TYPE;
+        }
+    }
+
     public static void init() {
         //? if >=26.1 {
         PayloadTypeRegistry.clientboundConfiguration().register(Handshake.TYPE, Handshake.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Settings.TYPE, Settings.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(RepairCost.TYPE, RepairCost.CODEC);
         //?} else {
         /*PayloadTypeRegistry.configurationS2C().register(Handshake.TYPE, Handshake.CODEC);
         PayloadTypeRegistry.playS2C().register(Settings.TYPE, Settings.CODEC);
+        PayloadTypeRegistry.playS2C().register(RepairCost.TYPE, RepairCost.CODEC);
         *///?}
 
         ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
@@ -81,10 +99,13 @@ public final class HammerNetwork {
         });
     }
 
-    /** Envía el alcance actual a un jugador (si tiene el mod). */
+    /** Envía el alcance y el coste actuales a un jugador (cada uno solo si su cliente lo conoce). */
     public static void sendSettings(ServerPlayer player) {
         if (ServerPlayNetworking.canSend(player, Settings.TYPE)) {
             ServerPlayNetworking.send(player, new Settings(HammerConfig.common().maxDistance()));
+        }
+        if (ServerPlayNetworking.canSend(player, RepairCost.TYPE)) {
+            ServerPlayNetworking.send(player, new RepairCost(HammerConfig.common().durabilityPerXp()));
         }
     }
 

@@ -91,6 +91,14 @@ public class HammerRepairClientGameTest implements FabricClientGameTest {
             check(heldDamage(server) == afterHold - 20, "segundo golpe en tercera persona");
         }
 
+        // Fuera de la partida no se conoce el coste del servidor: vuelve el texto genérico
+        context.runOnClient(client -> {
+            List<String> lines = new ItemStack(ModItems.REPAIR_HAMMER).getTooltipLines(Item.TooltipContext.EMPTY, null, TooltipFlag.NORMAL)
+                    .stream().map(Component::getString).toList();
+            check(lines.contains(Component.translatable("hammer_repair.tooltip.cost").getString()),
+                    "sin partida, el tooltip debe usar el texto genérico: " + lines);
+        });
+
         // Servidor dedicado real: misma interacción por red
         try (TestDedicatedServerContext server = context.worldBuilder().createServer()) {
             try (var connection = server.connect()) {
@@ -117,14 +125,17 @@ public class HammerRepairClientGameTest implements FabricClientGameTest {
     private static void checkTranslationsAndTooltip(ClientGameTestContext context) {
         context.runOnClient(client -> {
             for (String key : List.of("item.hammer_repair.repair_hammer", "hammer_repair.tooltip.partner", "hammer_repair.tooltip.self",
-                    "hammer_repair.tooltip.cost", "hammer_repair.message.no_xp")) {
+                    "hammer_repair.tooltip.cost", "hammer_repair.tooltip.cost_rate", "hammer_repair.message.no_xp",
+                    "hammer_repair.message.being_repaired")) {
                 check(Language.getInstance().has(key), "falta la traducción " + key);
             }
             ItemStack hammer = new ItemStack(ModItems.REPAIR_HAMMER);
             List<String> lines = hammer.getTooltipLines(Item.TooltipContext.of(client.level), client.player, TooltipFlag.NORMAL)
                     .stream().map(Component::getString).toList();
             check(lines.contains(Component.translatable("hammer_repair.tooltip.self").getString()), "tooltip sin la reparación propia: " + lines);
-            check(lines.contains(Component.translatable("hammer_repair.tooltip.cost").getString()), "tooltip sin el coste: " + lines);
+            // Dentro de una partida el servidor envía su coste (2 por defecto): el tooltip lo muestra en vez del texto genérico
+            check(lines.contains(Component.translatable("hammer_repair.tooltip.cost_rate", 2).getString()),
+                    "tooltip sin el coste del servidor: " + lines);
         });
     }
 

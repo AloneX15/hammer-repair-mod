@@ -13,17 +13,49 @@ class CommonConfigTest {
         assertTrue(result.isValid());
         assertTrue(result.diagnostics().isEmpty());
         assertEquals(CommonConfig.DEFAULTS, result.orThrow());
-        assertEquals(new CommonConfig(2, 20, 20, 3.0, false), CommonConfig.DEFAULTS);
+        assertEquals(new CommonConfig(2, 20, 20, 3.0, false, CommonConfig.MessageMode.ALL, false, true, true), CommonConfig.DEFAULTS);
     }
 
     @Test
     void customValuesAtRangeLimits() {
         ConfigResult<CommonConfig> result = CommonConfig.parse("""
                 {"schema_version": 1, "durability_per_xp": 100, "max_repair_per_hit": 1, "hit_interval_ticks": 5,
-                 "max_distance": 6, "require_target_sneaking": true}
+                 "max_distance": 6, "require_target_sneaking": true, "messages": "none", "show_progress": true,
+                 "notify_target": false, "particles": false}
                 """);
         assertTrue(result.isValid(), () -> result.diagnostics().toString());
-        assertEquals(new CommonConfig(100, 1, 5, 6.0, true), result.orThrow());
+        assertEquals(new CommonConfig(100, 1, 5, 6.0, true, CommonConfig.MessageMode.NONE, true, false, false), result.orThrow());
+        assertFalse(result.orThrow().sendsMessages());
+    }
+
+    /** Un common.json de 1.0.x (sin los campos de 1.1.0) carga igual que antes y sin avisos nuevos en el log. */
+    @Test
+    void configFrom100LoadsWithoutNewWarnings() {
+        ConfigResult<CommonConfig> result = CommonConfig.parse("""
+                {"schema_version": 1, "durability_per_xp": 4, "max_repair_per_hit": 20, "hit_interval_ticks": 20,
+                 "max_distance": 3.0, "require_target_sneaking": true}
+                """);
+        assertTrue(result.isValid());
+        assertTrue(result.diagnostics().isEmpty(), () -> result.diagnostics().toString());
+        CommonConfig config = result.orThrow();
+        assertEquals(4, config.durabilityPerXp());
+        assertTrue(config.requireTargetSneaking());
+        assertEquals(CommonConfig.MessageMode.ALL, config.messages());
+        assertFalse(config.showProgress());
+        assertTrue(config.notifyTarget());
+        assertTrue(config.particles());
+    }
+
+    @Test
+    void invalidFeedbackValuesAreRejected() {
+        for (String value : new String[] {"\"few\"", "\"ALL\"", "true", "0", "null"}) {
+            ConfigResult<CommonConfig> result = CommonConfig.parse("{\"schema_version\":1,\"messages\":" + value + "}");
+            assertFalse(result.isValid(), "messages=" + value);
+            assertEquals("invalid_choice", result.errors().getFirst().code());
+        }
+        assertEquals("expected_boolean", CommonConfig.parse("{\"schema_version\":1,\"show_progress\":1}").errors().getFirst().code());
+        assertEquals("expected_boolean", CommonConfig.parse("{\"schema_version\":1,\"notify_target\":\"yes\"}").errors().getFirst().code());
+        assertEquals("expected_boolean", CommonConfig.parse("{\"schema_version\":1,\"particles\":null}").errors().getFirst().code());
     }
 
     @Test

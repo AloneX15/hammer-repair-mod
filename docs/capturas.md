@@ -15,6 +15,12 @@ hay retoques a mano.
 | `icon-512.png` | 512×512 | ~90 KB | Martillo sobre degradado dorado | Icono del proyecto en Modrinth y logo en CurseForge |
 | `icon-256.png` | 256×256 | ~35 KB | Lo mismo, más pequeño | Ficha del martillo en el README |
 | `hammer.png` | recorte | ~16 KB | El martillo con fondo transparente | Para componer otras imágenes |
+| `repair-progress.gif` | 800×450, 3,6 s | ~250 KB | Primera persona: reparación cooperativa con `show_progress` (durabilidad tras cada golpe) | README, descripción y galería |
+| `partner-notice.gif` | 800×450, 2,4 s | ~470 KB | El compañero ve «Smith is repairing your armor» | README, descripción y galería |
+| `action-only.gif` | 800×450, 2,4 s | ~160 KB | La misma reparación con `"messages": "none"`: sin texto | README, descripción y galería |
+
+Los GIF van a tiempo real (un fotograma cada 2 ticks, 100 ms), en bucle, con una paleta común de 255 colores por GIF y
+solo la zona que cambia en cada fotograma.
 
 Las capturas son JPEG de calidad 88 (sin bandas en el cielo y con el texto de la interfaz legible) y los iconos PNG.
 Las de la interfaz se recortan sin reescalar, a la escala de interfaz del juego (4 y 3), para que el texto siga nítido.
@@ -26,7 +32,7 @@ Las de la interfaz se recortan sin reescalar, a la escala de interfaz del juego 
 
 **Modrinth** (*Settings*):
 - *Icon:* `icon-512.png`.
-- *Gallery:* subir las cinco imágenes con estos títulos y marcar el banner como **Featured**:
+- *Gallery:* subir las ocho imágenes con estos títulos y marcar el banner como **Featured**:
 
 | Imagen | Título | Descripción |
 |---|---|---|
@@ -34,12 +40,15 @@ Las de la interfaz se recortan sin reescalar, a la escala de interfaz del juego 
 | `cooperative-repair.jpg` | Repair a teammate | Hold right-click while aiming at another player |
 | `self-repair.jpg` | Repair your own armor | Hammer in the off hand, damaged piece in the main hand |
 | `recipe.jpg` | Recipe | Default recipe (configurable) |
-| `tooltip.jpg` | Tooltip | How to use it, right in the game |
+| `tooltip.jpg` | Tooltip | How to use it, with the real cost on your server |
+| `repair-progress.gif` | Repair progress | Optional: durability after every hit (show_progress) |
+| `partner-notice.gif` | Your teammate knows | Who is repairing your armor (notify_target) |
+| `action-only.gif` | Just the action | No messages at all ("messages": "none") |
 
 **CurseForge:**
 - *Project avatar / logo:* `icon-512.png`.
 - *Description:* el mismo Markdown (en el editor, elegir Markdown).
-- *Images:* las mismas cinco imágenes con los mismos títulos.
+- *Images:* las mismas ocho imágenes con los mismos títulos.
 
 El icono del mod dentro del juego (`src/main/resources/assets/hammer_repair/icon.png`, el que sale en Mod Menu) sigue
 siendo el sprite plano antiguo de `tools/generate-textures.js`.
@@ -59,6 +68,13 @@ siendo el sprite plano antiguo de `tools/generate-textures.js`.
    ```
    Recorta, comprime a JPEG y monta el icono: el martillo se renderiza delante de hormigón lima, se recorta por
    croma y se coloca sobre el degradado con una sombra suave.
+3. GIF (Node.js, sin dependencias):
+   ```bash
+   node tools/build-showcase-gifs.js "C:\ruta\capturas"
+   ```
+   El paso 1 guarda también los fotogramas de cada animación en `capturas/gif/<escena>/` (1280×720, escala de
+   interfaz 3, un fotograma cada 2 ticks: el juego solo avanza entre capturas, así que no se pierde ninguno). El script
+   los reduce a 800×450 y escribe `repair-progress.gif`, `partner-notice.gif` y `action-only.gif`.
 
 Si cambia el modelo, la textura o los textos del tooltip, basta con repetir los dos pasos. Los recortes de
 `build-showcase-images.ps1` están pensados para esas resoluciones: si cambias el encuadre de una escena, ajusta su

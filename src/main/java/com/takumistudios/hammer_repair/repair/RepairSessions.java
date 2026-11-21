@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import static com.takumistudios.hammer_repair.HammerRepair.LOGGER;
 
@@ -27,6 +28,19 @@ import static com.takumistudios.hammer_repair.HammerRepair.LOGGER;
 public final class RepairSessions {
     /** Ticks mínimos entre dos avisos iguales en la barra de acción. */
     private static final int MESSAGE_COOLDOWN = 40;
+
+    /** Aviso de fallo del mod: se envía siempre, también con {@code "messages": "none"}. */
+    private static final String DISABLED_KEY = "hammer_repair.message.disabled";
+
+    /**
+     * Texto en inglés de los avisos añadidos después de 1.0.0: un cliente 1.0.x (mismo protocolo de red) no tiene esas
+     * traducciones y vería la clave sin traducir.
+     */
+    private static final Map<String, String> FALLBACKS = Map.of(
+            "hammer_repair.message.being_repaired", "%s is repairing your armor");
+
+    /** Solo para los gametests: recibe cada aviso enviado a la barra de acción. */
+    public static volatile BiConsumer<ServerPlayer, Component> overlayListenerForTests;
 
     private static final Map<UUID, Session> SESSIONS = new HashMap<>();
     /** Último aviso enviado a cada jugador (también sin sesión, p. ej. al intentar empezar sin experiencia). */
@@ -85,6 +99,9 @@ public final class RepairSessions {
         SESSIONS.put(repairer.getUUID(), session);
         // Golpe al pulsar el clic derecho, sin esperar a que se complete la primera reparación
         Versions.swingHammer(repairer, session.hammerHand);
+        if (HammerConfig.common().notifyTarget()) {
+            notify(target, "hammer_repair.message.being_repaired", repairer.getDisplayName());
+        }
         return true;
     }
 
@@ -207,6 +224,10 @@ public final class RepairSessions {
                     notify(repairer, "hammer_repair.message.no_xp");
                     return false;
                 }
+                if (config.showProgress() && config.sendsMessages()) {
+                    // Sin el límite de repetición: cada golpe cambia el texto y el último sustituye al anterior
+                    sendOverlay(repairer, progress(result.piece()));
+                }
                 return true;
             }
         }
@@ -276,14 +297,36 @@ public final class RepairSessions {
         }
     }
 
-    /** Aviso en la barra de acción, limitado para no repetirse constantemente. */
+    /**
+     * Aviso en la barra de acción, limitado para no repetirse constantemente. Con {@code "messages": "none"} solo se
+     * envía el de martillo desactivado por errores.
+     */
     public static void notify(ServerPlayer player, String key, Object... args) {
+        if (!key.equals(DISABLED_KEY) && !HammerConfig.common().sendsMessages()) {
+            return;
+        }
         long now = player.level().getGameTime();
         LastMessage last = LAST_MESSAGES.get(player.getUUID());
         if (last != null && last.key().equals(key) && now - last.tick() < MESSAGE_COOLDOWN && now >= last.tick()) {
             return;
         }
         LAST_MESSAGES.put(player.getUUID(), new LastMessage(key, now));
-        Versions.sendOverlay(player, Component.translatable(key, args));
+        String fallback = FALLBACKS.get(key);
+        sendOverlay(player, fallback == null ? Component.translatable(key, args) : Component.translatableWithFallback(key, fallback, args));
+    }
+
+    /** Estado de la pieza tras un golpe, con el texto de durabilidad de vanilla: "Pechera de hierro  Durabilidad: 180 / 240". */
+    private static Component progress(ItemStack piece) {
+        int max = piece.getMaxDamage();
+        return Component.empty().append(piece.getHoverName()).append("  ")
+                .append(Component.translatable("item.durability", max - piece.getDamageValue(), max));
+    }
+
+    private static void sendOverlay(ServerPlayer player, Component message) {
+        BiConsumer<ServerPlayer, Component> listener = overlayListenerForTests;
+        if (listener != null) {
+            listener.accept(player, message);
+        }
+        Versions.sendOverlay(player, message);
     }
 }

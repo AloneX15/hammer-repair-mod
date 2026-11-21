@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.1.0
+
+Avisos al estilo vanilla, configurables por el servidor. Con la configuración predeterminada el martillo se comporta
+igual que en la 1.0.2, más el aviso al compañero.
+
+- **El compañero sabe quién le repara:** al empezar una reparación cooperativa ve «<jugador> está reparando tu
+  armadura» en la barra de acción, una sola vez. Se desactiva con `"notify_target": false`.
+- **Progreso tras cada golpe** (opcional, `"show_progress": true`): la pieza reparada y su durabilidad, con el mismo
+  texto que el tooltip avanzado de vanilla y en el idioma de cada jugador (`Diamond Boots  Durability: 99 / 429`).
+- **Solo la acción:** `"messages": "none"` quita todos los avisos de la barra de acción. Se repara y se cobra igual; solo
+  se sigue mostrando el aviso de martillo desactivado por errores, que indica un fallo del servidor.
+- `"particles": false` quita las chispas y las partículas de aldeano feliz; el golpe y el sonido se mantienen.
+- **Tooltip con el coste real** del servidor al que estás conectado («1 punto cada 2 de durabilidad»), actualizado al
+  entrar y tras `/hammerrepair reload`. En el menú principal, el texto genérico de siempre.
+- Compatibilidad: los cuatro campos nuevos de `common.json` son opcionales (un archivo de la 1.0.x carga igual y sin
+  avisos en el log) y el protocolo de red no cambia, así que clientes y servidores 1.0.x y 1.1.x se pueden mezclar. Un
+  valor no válido (`"messages": "few"`) se rechaza con un mensaje claro y se conserva la última configuración válida.
+- Documentación con GIFs de las tres opciones, generados desde el juego (`tools/build-showcase-gifs.js`).
+
 ## 1.0.2
 
 - Si el martillo se desactiva por errores repetidos en el servidor, la reparación cooperativa tampoco empieza y se

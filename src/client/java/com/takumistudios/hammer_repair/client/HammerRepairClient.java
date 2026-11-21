@@ -16,13 +16,21 @@ import java.util.List;
 
 import static com.takumistudios.hammer_repair.HammerRepair.LOGGER;
 
-/** Lado cliente: handshake de protocolo, alcance sincronizado y tooltip del martillo. */
+/** Lado cliente: handshake de protocolo, ajustes sincronizados y tooltip del martillo. */
 public final class HammerRepairClient implements ClientModInitializer {
-    /** Líneas del tooltip creadas una vez: nada de asignaciones por frame. */
-    private static final List<Component> TOOLTIP = List.of(
-            Component.translatable("hammer_repair.tooltip.partner").withStyle(ChatFormatting.GRAY),
-            Component.translatable("hammer_repair.tooltip.self").withStyle(ChatFormatting.GRAY),
-            Component.translatable("hammer_repair.tooltip.cost").withStyle(ChatFormatting.DARK_GREEN));
+    /** Líneas del tooltip: se crean al conectar o recibir el coste, nunca por frame. */
+    private static volatile List<Component> tooltip = tooltip(0);
+
+    /** Tooltip con el coste del servidor, o el texto genérico si no se conoce ({@code durabilityPerXp} = 0). */
+    private static List<Component> tooltip(int durabilityPerXp) {
+        Component cost = durabilityPerXp > 0
+                ? Component.translatable("hammer_repair.tooltip.cost_rate", durabilityPerXp)
+                : Component.translatable("hammer_repair.tooltip.cost");
+        return List.of(
+                Component.translatable("hammer_repair.tooltip.partner").withStyle(ChatFormatting.GRAY),
+                Component.translatable("hammer_repair.tooltip.self").withStyle(ChatFormatting.GRAY),
+                cost.copy().withStyle(ChatFormatting.DARK_GREEN));
+    }
 
     @Override
     public void onInitializeClient() {
@@ -43,11 +51,18 @@ public final class HammerRepairClient implements ClientModInitializer {
                 SyncedSettings.setClientMaxDistance(distance);
             }
         });
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> SyncedSettings.resetClient());
+        ClientPlayNetworking.registerGlobalReceiver(HammerNetwork.RepairCost.TYPE, (payload, context) -> {
+            SyncedSettings.setClientDurabilityPerXp(payload.durabilityPerXp());
+            tooltip = tooltip(SyncedSettings.clientDurabilityPerXp());
+        });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            SyncedSettings.resetClient();
+            tooltip = tooltip(0);
+        });
 
         ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> {
             if (stack.is(ModItems.REPAIR_HAMMER)) {
-                lines.addAll(Math.min(1, lines.size()), TOOLTIP); // justo debajo del nombre
+                lines.addAll(Math.min(1, lines.size()), tooltip); // justo debajo del nombre
             }
         });
     }

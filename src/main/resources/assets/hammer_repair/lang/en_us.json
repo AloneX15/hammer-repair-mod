@@ -5,12 +5,14 @@
   "hammer_repair.tooltip.partner": "Main hand: hold right-click on a player to repair their armor",
   "hammer_repair.tooltip.self": "Off hand: hold right-click with a damaged armor piece in your main hand",
   "hammer_repair.tooltip.cost": "Spends the experience of whoever uses the hammer",
+  "hammer_repair.tooltip.cost_rate": "Spends the user's experience: 1 point per %s durability",
 
   "hammer_repair.message.no_xp": "Not enough experience to keep repairing",
   "hammer_repair.message.no_damaged_armor": "%s has no damaged armor",
   "hammer_repair.message.needs_consent": "%s must crouch to accept the repair",
   "hammer_repair.message.finished": "Repair complete",
   "hammer_repair.message.finished_target": "Repair of %s's armor complete",
+  "hammer_repair.message.being_repaired": "%s is repairing your armor",
   "hammer_repair.message.disabled": "The repair hammer is disabled after repeated errors until the server restarts (see the server log)",
 
   "hammer_repair.disconnect.missing": "This server requires Hammer Repair %s (network protocol %s) on the client.",
@@ -72,5 +74,6 @@
   "hammer_repair.diagnostic.alt_item_missing": "skipping alternative %s: the item does not exist",
   "hammer_repair.diagnostic.alt_tag_missing": "skipping alternative %s: the tag does not exist or contains no items",
   "hammer_repair.diagnostic.slot_no_valid": "none of the alternatives is valid",
-  "hammer_repair.diagnostic.out_of_range": "the value %s is outside the range %s–%s"
+  "hammer_repair.diagnostic.out_of_range": "the value %s is outside the range %s–%s",
+  "hammer_repair.diagnostic.invalid_choice": "invalid value %s; use %s"
 }

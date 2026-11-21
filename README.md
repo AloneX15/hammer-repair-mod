@@ -77,6 +77,10 @@ La receta se puede cambiar o desactivar en `config/hammer_repair/recipe.json` (v
 - Golpe de brazo visible para todos al pulsar el clic derecho y en cada reparación, sonido suave de yunque, chispas y
   partículas de aldeano feliz. Avisos en la barra de acción (sin experiencia, sin armadura dañada, consentimiento,
   reparación completada) limitados para no repetirse.
+- **Avisos configurables por el servidor** (1.1.0): el compañero sabe quién le está reparando, el reparador puede ver
+  la durabilidad de la pieza tras cada golpe con el texto de vanilla, y un servidor puede quitar todos los avisos para
+  dejar **solo la acción** (golpe, sonido y partículas). Ver [Avisos y efectos](#avisos-y-efectos).
+- **Tooltip con el coste real** del servidor al que estás conectado («1 punto cada 2 de durabilidad»).
 - **Receta configurable** en `config/hammer_repair/recipe.json`: con forma o sin forma, objetos de Minecraft o de otros
   mods, etiquetas y alternativas. Se recarga con `/hammerrepair reload`.
 - Traducciones en español e inglés.
@@ -87,7 +91,9 @@ La receta se puede cambiar o desactivar en `config/hammer_repair/recipe.json` (v
 2. Descarga el jar de tu versión de Minecraft desde [Releases](https://github.com/AloneX15/hammer-repair-mod/releases) y ponlo en `mods/`.
 
 El mod va **en el cliente y en el servidor**. Un cliente sin el mod, o con una versión de protocolo distinta, recibe
-un mensaje claro al conectar. En una partida individual basta con instalarlo en el cliente.
+un mensaje claro al conectar. En una partida individual basta con instalarlo en el cliente. Las versiones 1.0.x y 1.1.x
+usan el mismo protocolo y se pueden mezclar entre cliente y servidor: lo nuevo de la 1.1.0 simplemente no se ve en el
+lado que no lo tiene.
 
 Build de desarrollo (último `main`, ya probado): [release `dev`](https://github.com/AloneX15/hammer-repair-mod/releases/tag/dev).
 
@@ -123,7 +129,11 @@ cambia nada.
   "max_repair_per_hit": 20,
   "hit_interval_ticks": 20,
   "max_distance": 3.0,
-  "require_target_sneaking": false
+  "require_target_sneaking": false,
+  "messages": "all",
+  "show_progress": false,
+  "notify_target": true,
+  "particles": true
 }
 ```
 
@@ -134,6 +144,33 @@ cambia nada.
 | `hit_interval_ticks` | 5–200 | Ticks por golpe (20 = 1 segundo) |
 | `max_distance` | 1–6 | Alcance de la reparación cooperativa, en bloques |
 | `require_target_sneaking` | `true`/`false` | El compañero debe agacharse para aceptar |
+| `messages` | `"all"`/`"none"` | `"none"`: ningún aviso en la barra de acción, solo la acción |
+| `show_progress` | `true`/`false` | Durabilidad de la pieza tras cada golpe |
+| `notify_target` | `true`/`false` | Avisar al compañero de quién le está reparando |
+| `particles` | `true`/`false` | Chispas y partículas de aldeano feliz en cada golpe |
+
+### Avisos y efectos
+
+Los avisos imitan a vanilla: una línea corta en la barra de acción, nunca en el chat, y la durabilidad con el mismo texto
+que el tooltip avanzado del juego (traducido a todos los idiomas). Todo se decide en el servidor y se aplica a todos los
+jugadores; se cambia en caliente con `/hammerrepair reload`.
+
+| `"show_progress": true` | `"notify_target": true` (predeterminado) | `"messages": "none"` |
+|---|---|---|
+| ![El reparador ve la durabilidad de la pieza tras cada golpe](docs/images/repair-progress.gif) | ![El compañero ve «Smith is repairing your armor»](docs/images/partner-notice.gif) | ![La misma reparación sin ningún texto: solo golpe, sonido y partículas](docs/images/action-only.gif) |
+| El reparador ve qué pieza se repara y cuánto le queda | El compañero sabe quién le está reparando | Solo la acción: ni progreso ni avisos |
+
+Para un servidor que solo quiera la acción, sin ningún texto:
+
+```json
+  "messages": "none"
+```
+
+Con `"messages": "none"` solo se muestra el aviso de martillo desactivado por errores repetidos, que indica un fallo
+del servidor y no un uso normal. El volumen del sonido y la cantidad de partículas los controla además cada jugador en
+sus opciones de vanilla (*Música y sonidos → Jugadores* y *Gráficos → Partículas*).
+
+Los cuatro campos nuevos son opcionales: un `common.json` de la 1.0.x sigue funcionando igual, sin avisos en el log.
 
 ### `recipe.json`: receta del martillo
 

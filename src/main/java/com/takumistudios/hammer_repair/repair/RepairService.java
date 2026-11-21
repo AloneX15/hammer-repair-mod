@@ -23,10 +23,17 @@ public final class RepairService {
 
     public enum Outcome { REPAIRED, NOTHING_TO_REPAIR, NO_XP }
 
-    /** Resultado de un golpe; {@code repairerOutOfXp} indica que tras cobrar ya no queda experiencia. */
-    public record HitResult(Outcome outcome, int repaired, int cost, boolean moreToRepair, boolean repairerOutOfXp) {
+    /**
+     * Resultado de un golpe; {@code repairerOutOfXp} indica que tras cobrar ya no queda experiencia y {@code piece} es
+     * la pieza reparada ({@link ItemStack#EMPTY} si no se reparó nada).
+     */
+    public record HitResult(Outcome outcome, int repaired, int cost, boolean moreToRepair, boolean repairerOutOfXp, ItemStack piece) {
         static HitResult of(Outcome outcome) {
-            return new HitResult(outcome, 0, 0, false, false);
+            return new HitResult(outcome, 0, 0, false, false, ItemStack.EMPTY);
+        }
+
+        HitResult withMoreToRepair(boolean more) {
+            return new HitResult(outcome, repaired, cost, more, repairerOutOfXp, piece);
         }
     }
 
@@ -52,9 +59,8 @@ public final class RepairService {
         ItemStack stack = ArmorPieces.worn(target, slot);
         HitResult result = repairStack(repairer, stack, config);
         if (result.outcome() == Outcome.REPAIRED) {
-            playEffects(repairer, InteractionHand.MAIN_HAND, piecePosition(target, slot));
-            result = new HitResult(result.outcome(), result.repaired(), result.cost(), ArmorPieces.hasDamagedArmor(target),
-                    result.repairerOutOfXp());
+            playEffects(repairer, InteractionHand.MAIN_HAND, piecePosition(target, slot), config);
+            result = result.withMoreToRepair(ArmorPieces.hasDamagedArmor(target));
         }
         return result;
     }
@@ -68,8 +74,8 @@ public final class RepairService {
         HitResult result = repairStack(repairer, stack, config);
         if (result.outcome() == Outcome.REPAIRED) {
             Vec3 eye = repairer.getEyePosition();
-            playEffects(repairer, InteractionHand.OFF_HAND, eye.add(repairer.getViewVector(1.0F).scale(0.6)).add(0, -0.35, 0));
-            result = new HitResult(result.outcome(), result.repaired(), result.cost(), stack.isDamaged(), result.repairerOutOfXp());
+            playEffects(repairer, InteractionHand.OFF_HAND, eye.add(repairer.getViewVector(1.0F).scale(0.6)).add(0, -0.35, 0), config);
+            result = result.withMoreToRepair(stack.isDamaged());
         }
         return result;
     }
@@ -87,7 +93,7 @@ public final class RepairService {
         if (hit.cost() > 0) {
             chargeXp(repairer, hit.cost());
         }
-        return new HitResult(Outcome.REPAIRED, hit.repair(), hit.cost(), stack.isDamaged(), !canPayAnything(repairer));
+        return new HitResult(Outcome.REPAIRED, hit.repair(), hit.cost(), stack.isDamaged(), !canPayAnything(repairer), stack);
     }
 
     /** Descuenta puntos exactos y actualiza nivel y barra sin negativos ni deriva por redondeo. */
@@ -108,13 +114,18 @@ public final class RepairService {
         return target.position().add(0, height, 0);
     }
 
-    /** Golpe visible para todos (brazo), sonido suave inspirado en el yunque, chispas y partículas de aldeano feliz. */
-    private static void playEffects(ServerPlayer repairer, InteractionHand hand, Vec3 at) {
+    /**
+     * Golpe visible para todos (brazo), sonido suave inspirado en el yunque y, si {@code particles} está activo, chispas
+     * y partículas de aldeano feliz.
+     */
+    private static void playEffects(ServerPlayer repairer, InteractionHand hand, Vec3 at, CommonConfig config) {
         Versions.swingHammer(repairer, hand);
         ServerLevel level = (ServerLevel) repairer.level();
         float pitch = 1.35F + repairer.getRandom().nextFloat() * 0.2F;
         level.playSound(null, at.x, at.y, at.z, SoundEvents.ANVIL_USE, SoundSource.PLAYERS, 0.25F, pitch);
-        level.sendParticles(ParticleTypes.ELECTRIC_SPARK, at.x, at.y, at.z, 4, 0.12, 0.12, 0.12, 0.05);
-        level.sendParticles(ParticleTypes.HAPPY_VILLAGER, at.x, at.y, at.z, 5, 0.25, 0.2, 0.25, 0.0);
+        if (config.particles()) {
+            level.sendParticles(ParticleTypes.ELECTRIC_SPARK, at.x, at.y, at.z, 4, 0.12, 0.12, 0.12, 0.05);
+            level.sendParticles(ParticleTypes.HAPPY_VILLAGER, at.x, at.y, at.z, 5, 0.25, 0.2, 0.25, 0.0);
+        }
     }
 }

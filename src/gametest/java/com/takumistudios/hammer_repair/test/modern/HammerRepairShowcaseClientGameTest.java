@@ -2,6 +2,9 @@ package com.takumistudios.hammer_repair.test.modern;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.takumistudios.hammer_repair.config.CommonConfig;
+import com.takumistudios.hammer_repair.config.HammerConfig;
+import com.takumistudios.hammer_repair.network.HammerNetwork;
 import com.takumistudios.hammer_repair.registry.ModItems;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -72,6 +75,7 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
 
             cooperativeRepair(world, server);
             selfRepair(world, server);
+            animations(world, server);
             crafting(server);
             banner(world, server);
             icon(world, server);
@@ -229,6 +233,121 @@ public class HammerRepairShowcaseClientGameTest implements FabricClientGameTest 
         context.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT);
         server.runCommand("item replace entity @a weapon.mainhand with air");
         server.runCommand("item replace entity @a weapon.offhand with air");
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Animaciones (fotogramas para tools/build-showcase-gifs.js)
+    // ---------------------------------------------------------------------------------------------------------------
+
+    /** Ticks entre fotogramas: 2 ticks = 100 ms, el retardo de cada fotograma del GIF (tiempo real). */
+    private static final int FRAME_TICKS = 2;
+
+    /**
+     * Fotogramas de las funciones de 1.1.0 a 1280×720 con escala de interfaz 3, para que la barra de acción siga
+     * legible al reducir el GIF. Se guardan en {@code <destino>/gif/<escena>/}.
+     */
+    private void animations(TestSingleplayerContext world, TestServerContext server) {
+        context.getInput().resizeWindow(1280, 720);
+        context.runOnClient(client -> {
+            client.options.guiScale().set(3);
+            client.resizeGui();
+        });
+        clearMobs(server, 0.5, -10.0, 14);
+        server.runCommand("gamemode survival @a");
+
+        // Progreso tras cada golpe y aviso al compañero, en primera persona del reparador
+        applyConfig(server, CommonConfig.MessageMode.ALL, true, true, true);
+        firstPersonRepair(world, server, "progress", 72);
+
+        // "Solo la acción": la misma escena con "messages": "none", sin texto en la barra de acción
+        applyConfig(server, CommonConfig.MessageMode.NONE, true, true, true);
+        firstPersonRepair(world, server, "action_only", 48);
+
+        // El compañero ve quién le repara
+        applyConfig(server, CommonConfig.MessageMode.ALL, false, true, true);
+        partnerView(world, server);
+
+        server.runOnServer(s -> {
+            HammerConfig.apply(CommonConfig.DEFAULTS, null, List.of());
+            HammerNetwork.sendSettingsToAll(s);
+        });
+        server.runCommand("clear @a");
+        context.getInput().resizeWindow(1920, 1080);
+        context.runOnClient(client -> {
+            client.options.guiScale().set(0);
+            client.resizeGui();
+        });
+        context.waitTicks(5);
+    }
+
+    private static void applyConfig(TestServerContext server, CommonConfig.MessageMode messages, boolean progress,
+                                    boolean notifyTarget, boolean particles) {
+        server.runOnServer(s -> {
+            CommonConfig base = CommonConfig.DEFAULTS;
+            HammerConfig.apply(new CommonConfig(base.durabilityPerXp(), base.maxRepairPerHit(), base.hitIntervalTicks(),
+                    base.maxDistance(), base.requireTargetSneaking(), messages, progress, notifyTarget, particles), null, List.of());
+            HammerNetwork.sendSettingsToAll(s);
+        });
+    }
+
+    /** El jugador del cliente mantiene el clic derecho sobre un compañero con armadura de diamante dañada. */
+    private void firstPersonRepair(TestSingleplayerContext world, TestServerContext server, String scene, int ticks) {
+        // Los comandos con @a van antes de crear al compañero de prueba, para que no le afecten
+        server.runCommand("xp set @a 30 levels");
+        server.runCommand("item replace entity @a weapon.mainhand with hammer_repair:repair_hammer");
+        server.runCommand("tp @a 0.5 -60 -12 0 12");
+        server.runOnServer(s -> spawnFakePlayer(s, "Partner", 0.5, -60.0, -9.6, 180.0F, partner -> {
+            partner.setItemSlot(EquipmentSlot.HEAD, damaged(Items.DIAMOND_HELMET, 300));
+            partner.setItemSlot(EquipmentSlot.CHEST, damaged(Items.DIAMOND_CHESTPLATE, 420));
+            partner.setItemSlot(EquipmentSlot.LEGS, damaged(Items.DIAMOND_LEGGINGS, 380));
+            partner.setItemSlot(EquipmentSlot.FEET, damaged(Items.DIAMOND_BOOTS, 350));
+        }));
+        context.getInput().lookAt(0.0F, 12.0F);
+        context.waitTicks(70); // que se borre el nombre del objeto que aparece al cogerlo
+        waitForChunks(world);
+
+        context.getInput().holdMouse(InputConstants.MOUSE_BUTTON_RIGHT);
+        frames(scene, ticks);
+        context.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT);
+        server.runOnServer(s -> removeFakePlayers(s, "Partner"));
+        server.runCommand("item replace entity @a weapon.mainhand with air");
+        context.waitTicks(70); // que se borre el último aviso antes de la siguiente escena
+    }
+
+    /** El cliente es el compañero: un jugador de prueba empieza a repararle la armadura. */
+    private void partnerView(TestSingleplayerContext world, TestServerContext server) {
+        server.runCommand("item replace entity @a armor.head with minecraft:diamond_helmet[damage=300]");
+        server.runCommand("item replace entity @a armor.chest with minecraft:diamond_chestplate[damage=420]");
+        server.runCommand("item replace entity @a armor.legs with minecraft:diamond_leggings[damage=380]");
+        server.runCommand("item replace entity @a armor.feet with minecraft:diamond_boots[damage=350]");
+        server.runCommand("tp @a 0.5 -60 -12 0 8");
+        server.runOnServer(s -> {
+            ServerPlayer smith = spawnFakePlayer(s, "Smith", 0.5, -60.0, -9.6, 180.0F,
+                    player -> player.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.REPAIR_HAMMER)));
+            smith.setExperienceLevels(30);
+        });
+        context.getInput().lookAt(0.0F, 8.0F);
+        context.waitTicks(40);
+        waitForChunks(world);
+
+        server.runOnServer(s -> {
+            ServerPlayer smith = s.getPlayerList().getPlayerByName("Smith");
+            smith.gameMode.useItem(smith, smith.level(), smith.getMainHandItem(), InteractionHand.MAIN_HAND);
+        });
+        frames("partner", 48);
+        server.runOnServer(s -> removeFakePlayers(s, "Smith"));
+        server.runCommand("clear @a");
+    }
+
+    /** Un fotograma cada {@link #FRAME_TICKS} ticks durante {@code ticks}: el juego solo avanza entre capturas. */
+    private void frames(String scene, int ticks) {
+        Path dir = out.resolve("gif").resolve(scene);
+        for (int i = 0; i * FRAME_TICKS < ticks; i++) {
+            context.runOnClient(HammerRepairShowcaseClientGameTest::clearToasts);
+            context.takeScreenshot(TestScreenshotOptions.of(String.format(java.util.Locale.ROOT, "%03d", i))
+                    .withDestinationDir(dir).disableCounterPrefix());
+            context.waitTicks(FRAME_TICKS);
+        }
     }
 
     /** Mesa de crafteo con la receta predeterminada, sin y con el tooltip del martillo. */

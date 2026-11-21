@@ -3,7 +3,7 @@
 mod.id = "hammer_repair"
 mod.name = "Hammer Repair"
 mod.group = "com.takumistudios.hammer_repair"
-mod.version = "1.0.2"
+mod.version = "1.1.0"
 
 deps.fabric_loader = "0.19.5"
 # mod.min_loader (por versión) es el Loader mínimo que exige el jar: el mismo que pide su Fabric API

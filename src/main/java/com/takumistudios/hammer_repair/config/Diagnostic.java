@@ -51,7 +51,8 @@ public record Diagnostic(Severity severity, Category category, Location location
             Map.entry("alt_item_missing", "se omite la alternativa %s: el objeto no existe"),
             Map.entry("alt_tag_missing", "se omite la alternativa %s: la etiqueta no existe o no contiene objetos"),
             Map.entry("slot_no_valid", "ninguna alternativa es válida"),
-            Map.entry("out_of_range", "el valor %s está fuera del rango %s–%s")
+            Map.entry("out_of_range", "el valor %s está fuera del rango %s–%s"),
+            Map.entry("invalid_choice", "valor %s no válido; usa %s")
     );
 
     public static Diagnostic error(Category category, Location location, String code, Object... args) {
