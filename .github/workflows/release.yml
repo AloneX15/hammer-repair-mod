@@ -2,7 +2,7 @@ name: Release
 
 # Al subir un tag vX.Y.Z: comprueba que coincide con mod.version, compila y prueba cada versión de Minecraft y crea una
 # release de GitHub con los jars y la sección del CHANGELOG. Todo lo demás es opcional y se activa con variables:
-#   Modrinth:    vars.MODRINTH_ID   + secrets.MODRINTH_TOKEN
+#   Modrinth:    vars.MODRINTH_ID   + secrets.MODRINTH_TOKEN (también actualiza la descripción: store-description.yml)
 #   CurseForge:  vars.CURSEFORGE_ID + secrets.CURSEFORGE_TOKEN
 #   Maven (API): vars.MAVEN_URL     + secrets.MAVEN_USERNAME + secrets.MAVEN_PASSWORD
 
@@ -181,3 +181,11 @@ jobs:
             --title "Hammer Repair $GITHUB_REF_NAME" \
             --notes-file body.md \
             --verify-tag $prerelease
+
+  # Descripción de Modrinth desde docs/store/description.md (CurseForge no tiene API para esto)
+  store-description:
+    name: Store description
+    needs: github-release
+    if: ${{ vars.MODRINTH_ID != '' }}
+    uses: ./.github/workflows/store-description.yml
+    secrets: inherit

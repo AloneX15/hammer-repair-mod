@@ -1,0 +1,46 @@
+name: Store description
+
+# Sube docs/store/description.md como descripción del proyecto en Modrinth (vars.MODRINTH_ID + secrets.MODRINTH_TOKEN;
+# el token necesita el permiso "Write projects"). Lo llama release.yml tras cada release y se puede lanzar a mano:
+#   gh workflow run store-description.yml --ref vX.Y.Z
+# CurseForge no tiene API para editar la descripción: hay que pegar el mismo archivo a mano en su panel.
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  modrinth:
+    name: Update Modrinth description
+    if: ${{ vars.MODRINTH_ID != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Update project body
+        env:
+          MODRINTH_ID: ${{ vars.MODRINTH_ID }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+        run: |
+          file=docs/store/description.md
+          if [ ! -s "$file" ]; then
+            echo "::error::Falta $file o está vacío"
+            exit 1
+          fi
+          jq -n --rawfile body "$file" '{body: $body}' > payload.json
+          status="$(curl -sS -o response.txt -w '%{http_code}' -X PATCH \
+            -H "Authorization: $MODRINTH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "User-Agent: ${GITHUB_REPOSITORY}/store-description" \
+            --data @payload.json \
+            "https://api.modrinth.com/v2/project/$MODRINTH_ID")"
+          if [ "$status" != "204" ]; then
+            echo "::error::Modrinth respondió $status al actualizar la descripción (¿el token tiene 'Write projects'?)"
+            cat response.txt
+            exit 1
+          fi
+          echo "Descripción de Modrinth actualizada desde $file"
+          echo "::notice::CurseForge no se actualiza solo: pega $file en la descripción del proyecto"
